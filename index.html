@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portail de Formation Marketing</title>
+  
+  <!-- Tailwind CSS via CDN pour le style sans build -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Lucide Icons via CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    /* Styles personnalisés */
+    body {
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .text-shadow-sm {
+      text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800 h-screen overflow-hidden">
+  
+  <!-- Conteneur principal de l'application -->
+  <div id="app" class="h-full w-full"></div>
+
+  <!-- Logique de l'application (Vanilla JS) -->
+  <script>
+    // ==========================================
+    // LOGOS (SVGs natifs)
+    // ==========================================
+    const Logos = {
+      Meta: `<svg viewBox="0 0 256 256" width="48" height="48" xmlns="http://www.w3.org/2000/svg"><path d="M110.158 141.054c-13.626 19.324-34.928 31.066-57.82 31.066-41.22 0-74.67-33.456-74.68-74.68 0-41.218 33.46-74.676 74.68-74.676 22.894 0 44.195 11.745 57.82 31.07l20.485 29.043c13.623-19.325 34.922-31.07 57.813-31.07 41.218 0 74.675 33.458 74.675 74.676 0 41.224-33.457 74.68-74.675 74.68-22.89 0-44.19-11.742-57.814-31.066l-20.484-29.043z" fill="#0668E1"/></svg>`,
+      GA4: `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18.75 20.833h-1.667a2.5 2.5 0 0 1-2.5-2.5V5.625a2.5 2.5 0 0 1 2.5-2.5h1.667a2.5 2.5 0 0 1 2.5 2.5v12.708a2.5 2.5 0 0 1-2.5 2.5z" fill="#F9AB00"/><path d="M12.083 20.833h-1.666a2.5 2.5 0 0 1-2.5-2.5v-7.083a2.5 2.5 0 0 1 2.5-2.5h1.666a2.5 2.5 0 0 1 2.5 2.5v7.083a2.5 2.5 0 0 1-2.5 2.5z" fill="#E37400"/><path d="M5.417 20.833H3.75a2.5 2.5 0 0 1-2.5-2.5v-3.333a2.5 2.5 0 0 1 2.5-2.5h1.667a2.5 2.5 0 0 1 2.5 2.5v3.333a2.5 2.5 0 0 1-2.5 2.5z" fill="#F9AB00"/></svg>`,
+      GAds: `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.53 2.11c-.58-.58-1.53-.58-2.12 0l-7.3 7.3c-.58.58-.58 1.53 0 2.12l7.3 7.3c.58.58 1.53.58 2.12 0l7.3-7.3c.58-.58.58-1.53 0-2.12l-7.3-7.3z" fill="#F9AB00"/><path d="M11.53 2.11c-.58-.58-1.53-.58-2.12 0l-7.3 7.3c-.58.58-.58 1.53 0 2.12l1.06 1.06 8.36-8.36-1.06-1.06z" fill="#E37400"/><path d="M21.89 9.41l-1.06-1.06-8.36 8.36 1.06 1.06c.58.58 1.53.58 2.12 0l7.3-7.3c.58-.58.58-1.54 0-2.12z" fill="#34A853"/><path d="M10.47 21.89c.58.58 1.53.58 2.12 0l8.36-8.36-1.06-1.06-8.36 8.36-1.06 1.06z" fill="#188038"/><path d="M9.41 21.89l1.06-1.06L2.11 12.47l-1.06 1.06c-.58.58-.58 1.53 0 2.12l7.3 7.3c.58.58 1.53.58 2.12 0z" fill="#4285F4"/></svg>`
+    };
+
+    // ==========================================
+    // ETAT GLOBAL (STATE)
+    // ==========================================
+    const defaultMetaDraft = (objective = 'TRAFFIC') => ({
+      campaign: { name: 'Nouvelle campagne', objective: objective, specialCategory: 'NONE' },
+      adSet: { 
+        name: 'Nouvel ensemble de publicités', budgetType: 'DAILY', budget: 20, 
+        locations: 'Belgique', ageMin: '18', ageMax: '65+', detailedTargeting: '',
+        placements: 'ADVANTAGE', manualPlacements: { facebook: true, instagram: true, audienceNetwork: true, messenger: true } 
+      },
+      ad: { 
+        name: 'Nouvelle publicité', adSetup: 'CREATE', format: 'SINGLE_IMAGE', primaryText: '', headline: '', callToAction: 'LEARN_MORE', 
+        url: '', urlParameters: '', pixelActive: false, 
+        facebookPage: 'Les Licornes du Marketing 🦄', instagramAccount: 'Utiliser la page sélectionnée', 
+        media: { feeds: '', stories: '', rightColumn: '' },
+        carouselCards: [
+          { id: 1, image: '', headline: 'Titre de la carte 1', url: '' },
+          { id: 2, image: '', headline: 'Titre de la carte 2', url: '' }
+        ]
+      }
+    });
+
+    const defaultGAdsDraft = () => {
+      const initialHeadlines = Array(15).fill('');
+      initialHeadlines[0] = 'Formation Marketing Digital'; initialHeadlines[1] = 'Devenez Expert Google Ads'; initialHeadlines[2] = 'Inscriptions Ouvertes';
+      const initialDescriptions = Array(4).fill('');
+      initialDescriptions[0] = 'Inscrivez-vous dès maintenant à notre formation complète en marketing digital.'; initialDescriptions[1] = 'Maîtrisez le Media Buying, Google Ads et Meta Ads avec des formateurs experts.';
+      return {
+        settings: { name: 'Nouvelle campagne', goal: 'SALES', type: 'SEARCH', budget: 20, bidding: 'CONVERSIONS', location: 'Belgique', language: 'Français' },
+        adGroup: { name: 'Groupe d\'annonces 1', keywords: 'formation marketing digital\ncours google ads\n[ecole de marketing]\n"apprendre le media buying"' },
+        ad: { 
+          finalUrl: 'https://www.efp.be/formations', path1: 'marketing', path2: 'digital', 
+          headlines: initialHeadlines, descriptions: initialDescriptions, images: [], logos: [],
+          sitelinks: [{ text: 'Toutes nos formations', url: 'https://www.efp.be/toutes-formations' }, { text: 'Inscriptions 2024', url: 'https://www.efp.be/inscription' }, { text: '', url: '' }, { text: '', url: '' }]
+        }
+      };
+    };
+
+    const State = {
+      currentApp: 'hub', // 'hub', 'meta', 'ga4', 'googleads'
+      
+      meta: {
+        view: 'dashboard',
+        isObjectiveModalOpen: false,
+        selectedObjective: 'TRAFFIC',
+        previewFormat: 'feeds',
+        showSafeZones: false,
+        campaigns: [
+          { id: 1, name: 'Campagne de Notoriété - Lancement', status: 'active', delivery: 'Actif', budget: '20,00 € / jour', amountSpent: '145,50 €', results: '12 450', reach: '45 200', impressions: '68 900', cpc: '0,12 €', landingPageViews: '850', postReactions: '1 245', postComments: '84', postSaves: '120', postShares: '45', engagementRate: '4,5 %', instantExpOpen: '320', instantExpStart: '150', trafficGoogle: '45', purchases: '2', objective: 'AWARENESS' },
+          { id: 2, name: 'Trafic vers le site web - Retargeting', status: 'paused', delivery: 'Désactivé', budget: '15,00 € / jour', amountSpent: '342,20 €', results: '342', reach: '8 500', impressions: '12 100', cpc: '0,85 €', landingPageViews: '320', postReactions: '45', postComments: '12', postSaves: '5', postShares: '2', engagementRate: '1,2 %', instantExpOpen: '-', instantExpStart: '-', trafficGoogle: '12', purchases: '15', objective: 'TRAFFIC' }
+        ],
+        draft: defaultMetaDraft(),
+        currentStep: 'campaign'
+      },
+
+      ga4: {
+        activeMenu: 'acq-traffic',
+        primaryDimension: 'sourceMedium',
+        searchQuery: '',
+        homeKeyEvent: 'Purchase'
+      },
+
+      gads: {
+        view: 'dashboard',
+        campaigns: [
+          { id: 1, name: 'Search - Mots-clés Marque', type: 'Search', status: 'active', budget: '15,00 €/jour', clicks: '450', impressions: '1 200', ctr: '37,50 %', cpc: '0,45 €', cost: '202,50 €', conversions: '45' },
+          { id: 2, name: 'PMax - Lancement Produit', type: 'Performance Max', status: 'active', budget: '50,00 €/jour', clicks: '1 240', impressions: '45 000', ctr: '2,75 %', cpc: '0,85 €', cost: '1 054,00 €', conversions: '112' }
+        ],
+        draft: defaultGAdsDraft(),
+        currentStep: 'settings'
+      }
+    };
+
+    // ==========================================
+    // ACTIONS GLOBALES (MUTATIONS)
+    // ==========================================
+    const Actions = {
+      nav: (app) => { State.currentApp = app; Render(); },
+      
+      // --- META ACTIONS ---
+      metaSetView: (v) => { State.meta.view = v; Render(); },
+      metaOpenCreate: () => { State.meta.selectedObjective = 'TRAFFIC'; State.meta.isObjectiveModalOpen = true; Render(); },
+      metaCloseObjectiveModal: () => { State.meta.isObjectiveModalOpen = false; Render(); },
+      metaSelectObjective: (obj) => { State.meta.selectedObjective = obj; Render(); },
+      metaStartCreation: () => { 
+        State.meta.draft = defaultMetaDraft(State.meta.selectedObjective);
+        State.meta.currentStep = 'campaign';
+        State.meta.isObjectiveModalOpen = false;
+        State.meta.view = 'create';
+        Render();
+      },
+      metaSetStep: (step) => { State.meta.currentStep = step; Render(); },
+      metaUpdateDraft: (level, field, value) => { State.meta.draft[level][field] = value; Render(); },
+      metaUpdateManualPlacement: (field, value) => { State.meta.draft.adSet.manualPlacements[field] = value; Render(); },
+      metaToggleStatus: (id) => {
+        const camp = State.meta.campaigns.find(c => c.id === id);
+        if (camp) { camp.status = camp.status === 'active' ? 'paused' : 'active'; camp.delivery = camp.status === 'active' ? 'Actif' : 'Désactivé'; }
+        Render();
+      },
+      metaEditCampaign: (id) => {
+        const camp = State.meta.campaigns.find(c => c.id === id);
+        State.meta.draft = defaultMetaDraft(camp.objective);
+        State.meta.draft.campaign.name = camp.name;
+        State.meta.currentStep = 'campaign';
+        State.meta.view = 'create';
+        Render();
+      },
+      metaDuplicateCampaign: (id) => {
+        const camp = State.meta.campaigns.find(c => c.id === id);
+        State.meta.campaigns.unshift({ ...camp, id: Date.now(), name: camp.name + ' - Copie', status: 'paused', delivery: 'Brouillon', amountSpent: '0,00 €', results: '-', reach: '-', impressions: '-' });
+        Render();
+      },
+      metaPublish: () => {
+        State.meta.campaigns.unshift({
+          id: Date.now(), name: State.meta.draft.campaign.name, status: 'active', delivery: 'En cours d\'examen',
+          budget: `${State.meta.draft.adSet.budget},00 € / ${State.meta.draft.adSet.budgetType === 'DAILY' ? 'jour' : 'global'}`,
+          amountSpent: '0,00 €', results: '-', reach: '-', impressions: '-', cpc: '-', landingPageViews: '-', postReactions: '-', postComments: '-', engagementRate: '-', trafficGoogle: '-', purchases: '-', objective: State.meta.draft.campaign.objective
+        });
+        State.meta.view = 'dashboard';
+        Render();
+      },
+      metaSetPreviewFormat: (f) => { State.meta.previewFormat = f; Render(); },
+      metaToggleSafeZones: () => { State.meta.showSafeZones = !State.meta.showSafeZones; Render(); },
+      metaHandleImageUpload: (input, placement) => {
+        const file = input.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onloadend = () => { State.meta.draft.ad.media[placement] = reader.result; Render(); };
+          reader.readAsDataURL(file);
+        }
+      },
+      metaHandleCarouselImageUpload: (input, index) => {
+        const file = input.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onloadend = () => { State.meta.draft.ad.carouselCards[index].image = reader.result; Render(); };
+          reader.readAsDataURL(file);
+        }
+      },
+      metaUpdateCarouselCard: (index, field, value) => { State.meta.draft.ad.carouselCards[index][field] = value; Render(); },
+      metaAddCarouselCard: () => { State.meta.draft.ad.carouselCards.push({ id: Date.now(), image: '', headline: `Titre carte ${State.meta.draft.ad.carouselCards.length + 1}`, url: '' }); Render(); },
+      metaRemoveCarouselCard: (index) => { State.meta.draft.ad.carouselCards.splice(index, 1); Render(); },
+      metaExport: () => {
+        const d = State.meta.draft;
+        let content = `=== ÉVALUATION : SIMULATION META ADS ===\nDate : ${new Date().toLocaleString('fr-FR')}\n\n`;
+        content += `--- 1. CAMPAGNE ---\nNom : ${d.campaign.name}\nObjectif : ${d.campaign.objective}\n\n`;
+        content += `--- 2. ENSEMBLE DE PUBLICITÉS ---\nNom : ${d.adSet.name}\nBudget : ${d.adSet.budget}€ (${d.adSet.budgetType})\nLieux : ${d.adSet.locations}\nÂge : ${d.adSet.ageMin} à ${d.adSet.ageMax}\nCiblage : ${d.adSet.detailedTargeting || 'Aucun'}\nPlacements : ${d.adSet.placements}\n\n`;
+        content += `--- 3. PUBLICITÉ ---\nNom : ${d.ad.name}\nPage FB : ${d.ad.facebookPage}\nFormat : ${d.ad.format}\nTexte : ${d.ad.primaryText}\nCTA : ${d.ad.callToAction}\n`;
+        if (d.ad.format === 'CAROUSEL') {
+          content += `\n--- CARROUSEL ---\n` + d.ad.carouselCards.map((c,i) => `Carte ${i+1}: Titre="${c.headline}" URL="${c.url}"`).join('\n') + '\n';
+        } else {
+          content += `Titre : ${d.ad.headline}\nURL : ${d.ad.url}\n`;
+        }
+        content += `UTM : ${d.ad.urlParameters}\nPixel : ${d.ad.pixelActive ? 'OUI' : 'NON'}`;
+        downloadTextFile(`MetaAds_${d.campaign.name.replace(/\s+/g, '_')}.txt`, content);
+      },
+
+      // --- GA4 ACTIONS ---
+      ga4SetActiveMenu: (m) => { State.ga4.activeMenu = m; Render(); },
+      ga4SetPrimaryDimension: (d) => { State.ga4.primaryDimension = d; Render(); },
+      ga4SetSearchQuery: (q) => { State.ga4.searchQuery = q; Render(); },
+      ga4SetHomeKeyEvent: (e) => { State.ga4.homeKeyEvent = e; Render(); },
+
+      // --- GOOGLE ADS ACTIONS ---
+      gadsSetView: (v) => { State.gads.view = v; Render(); },
+      gadsSetStep: (step) => { State.gads.currentStep = step; Render(); },
+      gadsOpenCreate: () => { State.gads.draft = defaultGAdsDraft(); State.gads.currentStep = 'settings'; State.gads.view = 'create'; Render(); },
+      gadsUpdateDraft: (level, field, value) => { State.gads.draft[level][field] = value; Render(); },
+      gadsUpdateArrayField: (level, field, index, value) => { State.gads.draft[level][field][index] = value; Render(); },
+      gadsHandleSitelinkChange: (index, field, value) => { State.gads.draft.ad.sitelinks[index][field] = value; Render(); },
+      gadsHandleAssetUpload: (input, type) => {
+        const file = input.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onloadend = () => { State.gads.draft.ad[type].push(reader.result); Render(); };
+          reader.readAsDataURL(file);
+        }
+      },
+      gadsRemoveAsset: (index, type) => { State.gads.draft.ad[type].splice(index, 1); Render(); },
+      gadsPublish: () => {
+        const typeLabels = { 'SEARCH': 'Search', 'DISPLAY': 'Display', 'PMAX': 'Performance Max', 'VIDEO': 'Vidéo' };
+        State.gads.campaigns.unshift({
+          id: Date.now(), name: State.gads.draft.settings.name, type: typeLabels[State.gads.draft.settings.type], status: 'active', budget: `${State.gads.draft.settings.budget},00 €/jour`,
+          clicks: '0', impressions: '0', ctr: '0,00 %', cpc: '0,00 €', cost: '0,00 €', conversions: '0'
+        });
+        State.gads.view = 'dashboard';
+        Render();
+      },
+      gadsExport: () => {
+        const d = State.gads.draft;
+        let content = `=== ÉVALUATION : SIMULATION GOOGLE ADS ===\nDate : ${new Date().toLocaleString('fr-FR')}\n\n`;
+        content += `--- 1. PARAMÈTRES ---\nNom : ${d.settings.name}\nObjectif : ${d.settings.goal}\nType : ${d.settings.type}\nBudget : ${d.settings.budget}€/j\nEnchères : ${d.settings.bidding}\nZones : ${d.settings.location}\nLangues : ${d.settings.language}\n\n`;
+        content += `--- 2. GROUPE D'ANNONCES ---\nNom : ${d.adGroup.name}\nMots-clés :\n${d.adGroup.keywords || 'N/A'}\n\n`;
+        content += `--- 3. ANNONCES ---\nURL : ${d.ad.finalUrl}\nChemin : /${d.ad.path1}/${d.ad.path2}\n\nTitres :\n${d.ad.headlines.filter(h => h.trim()).map(h => '- ' + h).join('\n')}\n\nDescriptions :\n${d.ad.descriptions.filter(d => d.trim()).map(d => '- ' + d).join('\n')}\n\nSitelinks :\n${d.ad.sitelinks.filter(s => s.text.trim()).map(s => `- ${s.text} (${s.url})`).join('\n')}`;
+        downloadTextFile(`GoogleAds_${d.settings.name.replace(/\s+/g, '_')}.txt`, content);
+      }
+    };
+
+    // Helper Export Fichier
+    function downloadTextFile(filename, text) {
+      const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // Helper Affichage URL
+    const getDisplayUrl = (url) => {
+      try { if (!url) return 'EXEMPLE.COM'; return new URL(url.startsWith('http') ? url : `https://${url}`).hostname.replace('www.', '').toUpperCase(); } 
+      catch (e) { return 'EXEMPLE.COM'; }
+    };
+    
+    const getCTALabel = (cta) => {
+      const ctas = { 'LEARN_MORE': 'En savoir plus', 'SHOP_NOW': 'Acheter', 'SIGN_UP': "S'inscrire", 'CONTACT_US': 'Nous contacter', 'APPLY_NOW': 'Postuler', 'BOOK_NOW': 'Réserver', 'DOWNLOAD': 'Télécharger', 'GET_OFFER': 'Obtenir l\'offre', 'SUBSCRIBE': 'S\'abonner', 'WATCH_MORE': 'Voir plus', 'LISTEN_NOW': 'Écouter', 'NO_BUTTON': '' };
+      return ctas[cta] || '';
+    };
+
+    const opt = (val, current, label) => `<option value="${val}" ${val === current ? 'selected' : ''}>${label}</option>`;
+
+    // ==========================================
+    // RENDU (HTML TEMPLATES)
+    // ==========================================
+
+    function Render() {
+      const app = document.getElementById('app');
+      if (State.currentApp === 'hub') app.innerHTML = ViewHub();
+      else if (State.currentApp === 'meta') app.innerHTML = ViewMeta();
+      else if (State.currentApp === 'ga4') app.innerHTML = ViewGA4();
+      else if (State.currentApp === 'googleads') app.innerHTML = ViewGAds();
+      
+      // Init icons
+      lucide.createIcons();
+    }
+
+    // --- HUB ---
+    function ViewHub() {
+      return `
+        <div class="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-6 font-sans">
+          <div class="max-w-5xl w-full text-center mb-12">
+            <h1 class="text-4xl font-extrabold text-gray-900 mb-4 tracking-tight">Portail de Formation Marketing</h1>
+            <p class="text-lg text-gray-600">Sélectionnez un environnement pour démarrer la simulation pratique.</p>
+          </div>
+          
+          <div class="flex flex-col items-center w-full">
+            <div class="grid md:grid-cols-2 gap-8 max-w-4xl w-full mb-8">
+              <div onclick="Actions.nav('meta')" class="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 p-8 cursor-pointer border-2 border-transparent hover:border-blue-500 flex flex-col items-center text-center group">
+                 <div class="w-20 h-20 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">${Logos.Meta}</div>
+                 <h2 class="text-2xl font-bold text-gray-900 mb-3">Meta Ads Manager</h2>
+                 <p class="text-gray-500 leading-relaxed text-sm">Simulateur de création de campagnes, paramétrage d'audiences, gestion des placements et prévisualisation.</p>
+              </div>
+              
+              <div onclick="Actions.nav('ga4')" class="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 p-8 cursor-pointer border-2 border-transparent hover:border-amber-500 flex flex-col items-center text-center group">
+                 <div class="w-20 h-20 bg-amber-50 text-amber-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">${Logos.GA4}</div>
+                 <h2 class="text-2xl font-bold text-gray-900 mb-3">Google Analytics 4</h2>
+                 <p class="text-gray-500 leading-relaxed text-sm">Analyse de l'acquisition, chronologie du trafic, comportement sur les pages et mesure des événements clés.</p>
+              </div>
+            </div>
+
+            <div class="w-full md:max-w-[432px]">
+              <div onclick="Actions.nav('googleads')" class="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 p-8 cursor-pointer border-2 border-transparent hover:border-green-500 flex flex-col items-center text-center group">
+                 <div class="w-20 h-20 bg-green-50 text-green-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">${Logos.GAds}</div>
+                 <h2 class="text-2xl font-bold text-gray-900 mb-3">Google Ads</h2>
+                 <p class="text-gray-500 leading-relaxed text-sm">Créez des campagnes sur le Réseau de Recherche, Display ou PMax. Définissez vos mots-clés et enchères.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // --- META ADS ---
+    function ViewMeta() {
+      const s = State.meta;
+      
+      const Sidebar = `
+        <div class="w-16 bg-white border-r border-gray-200 flex flex-col items-center py-4 z-20 shadow-sm shrink-0">
+          <button onclick="Actions.nav('hub')" class="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-600 mb-8"><i data-lucide="arrow-left" class="w-5 h-5"></i></button>
+          <nav class="flex flex-col gap-6 flex-1 w-full">
+            <div onclick="Actions.metaSetView('dashboard')" class="p-3 mx-2 rounded-lg cursor-pointer flex justify-center ${s.view === 'dashboard' ? 'bg-blue-50 text-blue-600' : 'text-gray-500 hover:bg-gray-100'}"><i data-lucide="layout-dashboard" class="w-5 h-5"></i></div>
+            <div class="p-3 mx-2 rounded-lg cursor-pointer flex justify-center ${s.view === 'create' ? 'bg-blue-50 text-blue-600' : 'text-gray-500 hover:bg-gray-100'}"><i data-lucide="megaphone" class="w-5 h-5"></i></div>
+            <div class="p-3 mx-2 rounded-lg cursor-pointer flex justify-center text-gray-500 hover:bg-gray-100"><i data-lucide="users" class="w-5 h-5"></i></div>
+            <div class="p-3 mx-2 rounded-lg cursor-pointer flex justify-center text-gray-500 hover:bg-gray-100"><i data-lucide="bar-chart-2" class="w-5 h-5"></i></div>
+          </nav>
+        </div>`;
+
+      let Content = '';
+      if (s.view === 'dashboard') {
+        const rows = s.campaigns.map(camp => `
+          <tr class="border-b border-gray-100 hover:bg-gray-50 group h-14">
+            <td class="px-4 py-2 sticky left-0 bg-white group-hover:bg-gray-50 z-10"><input type="checkbox" class="rounded text-blue-600" /></td>
+            <td class="px-4 py-2 sticky left-12 bg-white group-hover:bg-gray-50 z-10">
+              <div onclick="Actions.metaToggleStatus(${camp.id})" class="w-8 h-4 rounded-full relative cursor-pointer ${camp.status === 'active' ? 'bg-blue-600' : 'bg-gray-300'}">
+                <div class="absolute top-0.5 w-3 h-3 rounded-full bg-white transition-all ${camp.status === 'active' ? 'left-4.5' : 'left-0.5'}"></div>
+              </div>
+            </td>
+            <td class="px-4 py-2 font-medium text-blue-600 sticky left-[112px] bg-white group-hover:bg-gray-50 z-10 shadow-[1px_0_0_0_#e5e7eb] align-top pt-3">
+              <div class="w-56 truncate cursor-pointer hover:underline" onclick="Actions.metaEditCampaign(${camp.id})">${camp.name}</div>
+              <div class="text-[11px] text-gray-500 font-normal mt-1 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity absolute bg-gray-50 pr-2">
+                <span onclick="Actions.metaEditCampaign(${camp.id})" class="hover:text-gray-900 cursor-pointer flex items-center gap-0.5"><i data-lucide="edit-2" class="w-3 h-3"></i> Modifier</span>
+                <span onclick="Actions.metaDuplicateCampaign(${camp.id})" class="hover:text-gray-900 cursor-pointer flex items-center gap-0.5"><i data-lucide="folder-open" class="w-3 h-3"></i> Dupliquer</span>
+              </div>
+            </td>
+            <td class="px-4 py-2 text-gray-700">${camp.delivery}</td>
+            <td class="px-4 py-3 text-right text-gray-700">${camp.budget}</td>
+            <td class="px-4 py-3 text-right font-medium">${camp.amountSpent}</td>
+            <td class="px-4 py-3 text-right font-medium text-green-600">${camp.purchases}</td>
+            <td class="px-4 py-3 text-right font-medium">${camp.results}</td>
+            <td class="px-4 py-3 text-right text-gray-700">${camp.reach}</td>
+            <td class="px-4 py-3 text-right text-gray-700">${camp.impressions}</td>
+          </tr>
+        `).join('');
+
+        Content = `
+          <div class="flex-1 flex flex-col h-full relative">
+            ${s.isObjectiveModalOpen ? `
+              <div class="absolute inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+                <div class="bg-white rounded-xl shadow-2xl w-full max-w-3xl flex flex-col overflow-hidden">
+                  <div class="p-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+                    <h2 class="text-xl font-semibold text-gray-900">Choisir un objectif de campagne</h2>
+                    <button onclick="Actions.metaCloseObjectiveModal()" class="text-gray-500 hover:bg-gray-200 p-2 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
+                  </div>
+                  <div class="p-8 grid grid-cols-3 gap-4">
+                    ${['AWARENESS', 'TRAFFIC', 'ENGAGEMENT', 'LEADS', 'APP_PROMOTION', 'SALES'].map(obj => `
+                      <div onclick="Actions.metaSelectObjective('${obj}')" class="border-2 p-4 rounded-xl cursor-pointer transition-all ${s.selectedObjective === obj ? 'border-blue-600 bg-blue-50/50' : 'border-gray-200 hover:border-blue-300'}">
+                        <h3 class="font-semibold text-gray-900 mb-1">${obj}</h3>
+                      </div>
+                    `).join('')}
+                  </div>
+                  <div class="p-4 bg-gray-50 border-t border-gray-200 text-right">
+                    <button onclick="Actions.metaStartCreation()" class="px-6 py-2 bg-blue-600 text-white rounded-md font-medium">Continuer</button>
+                  </div>
+                </div>
+              </div>
+            ` : ''}
+
+            <header class="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center shadow-sm shrink-0">
+              <h1 class="text-xl font-semibold text-gray-900">Campagnes</h1>
+            </header>
+            <div class="bg-white border-b border-gray-200 px-6 py-3 flex items-center gap-4 shrink-0">
+              <button onclick="Actions.metaOpenCreate()" class="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-md text-sm transition-colors"><i data-lucide="plus" class="w-4 h-4"></i> Créer</button>
+            </div>
+            <div class="flex-1 overflow-auto bg-gray-50 p-6">
+              <div class="bg-white rounded-lg shadow border border-gray-200 overflow-hidden overflow-x-auto">
+                <table class="w-full text-sm text-left whitespace-nowrap">
+                  <thead class="text-xs text-gray-500 bg-gray-50 border-b border-gray-200 uppercase">
+                    <tr><th class="px-4 py-3 sticky left-0 bg-gray-50 z-10 w-12"></th><th class="px-4 py-3 sticky left-12 bg-gray-50 z-10 w-16">Dés.</th><th class="px-4 py-3 font-medium sticky left-[112px] bg-gray-50 z-10">Nom de la campagne</th><th class="px-4 py-3 font-medium">Diffusion</th><th class="px-4 py-3 font-medium text-right">Budget</th><th class="px-4 py-3 font-medium text-right">Montant dépensé</th><th class="px-4 py-3 font-medium text-right">Achats</th><th class="px-4 py-3 font-medium text-right">Résultats</th><th class="px-4 py-3 font-medium text-right">Couverture</th><th class="px-4 py-3 font-medium text-right">Impressions</th></tr>
+                  </thead>
+                  <tbody>${rows}</tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        `;
+      } else {
+        // Mode Création
+        const d = s.draft;
+        const step = s.currentStep;
+
+        let formHtml = '';
+        if (step === 'campaign') {
+          formHtml = `
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h2 class="text-xl font-semibold mb-6">Détails de la campagne</h2>
+              <input type="text" value="${d.campaign.name}" onchange="Actions.metaUpdateDraft('campaign', 'name', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded-md mb-6 outline-none focus:border-blue-500" />
+              <div class="border-t border-gray-100 pt-6">
+                <h3 class="text-md font-medium mb-2">Objectif</h3>
+                <select disabled class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
+                  <option>${d.campaign.objective}</option>
+                </select>
+              </div>
+            </div>
+          `;
+        } else if (step === 'adset') {
+          formHtml = `
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+              <h2 class="text-xl font-semibold mb-4">Ensemble de publicités</h2>
+              <input type="text" value="${d.adSet.name}" onchange="Actions.metaUpdateDraft('adSet', 'name', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded-md mb-4 outline-none focus:border-blue-500" />
+              <h3 class="text-md font-medium mb-2">Budget</h3>
+              <div class="flex gap-4">
+                <select onchange="Actions.metaUpdateDraft('adSet', 'budgetType', this.value)" class="flex-1 px-3 py-2 border border-gray-300 rounded-md">
+                  ${opt('DAILY', d.adSet.budgetType, 'Quotidien')} ${opt('LIFETIME', d.adSet.budgetType, 'Global')}
+                </select>
+                <input type="number" value="${d.adSet.budget}" onchange="Actions.metaUpdateDraft('adSet', 'budget', this.value)" class="flex-1 px-3 py-2 border border-gray-300 rounded-md" />
+              </div>
+            </div>
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+              <h3 class="text-md font-medium mb-4 flex items-center gap-2"><i data-lucide="users" class="w-5 h-5 text-blue-600"></i> Audience</h3>
+              <label class="block text-sm mb-1">Lieux</label>
+              <input type="text" value="${d.adSet.locations}" onchange="Actions.metaUpdateDraft('adSet', 'locations', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded-md mb-4" />
+              <label class="block text-sm mb-1">Ciblage avancé</label>
+              <input type="text" value="${d.adSet.detailedTargeting}" onchange="Actions.metaUpdateDraft('adSet', 'detailedTargeting', this.value)" placeholder="Intérêts..." class="w-full px-3 py-2 border border-gray-300 rounded-md" />
+            </div>
+          `;
+        } else if (step === 'ad') {
+          formHtml = `
+            <div class="flex gap-6 items-start">
+              <div class="flex-1 space-y-6">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                  <h2 class="text-lg font-semibold mb-4">Création de la publicité</h2>
+                  <select onchange="Actions.metaUpdateDraft('ad', 'adSetup', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded-md mb-6">
+                    ${opt('CREATE', d.ad.adSetup, 'Créer une publicité')} ${opt('EXISTING', d.ad.adSetup, 'Publication existante')}
+                  </select>
+                  ${d.ad.adSetup !== 'EXISTING' ? `
+                    <div class="flex gap-4 mb-6">
+                      <label class="flex items-center gap-2"><input type="radio" ${d.ad.format === 'SINGLE_IMAGE'?'checked':''} onchange="Actions.metaUpdateDraft('ad', 'format', 'SINGLE_IMAGE')"> Image unique</label>
+                      <label class="flex items-center gap-2"><input type="radio" ${d.ad.format === 'CAROUSEL'?'checked':''} onchange="Actions.metaUpdateDraft('ad', 'format', 'CAROUSEL')"> Carrousel</label>
+                    </div>
+                    ${d.ad.format === 'SINGLE_IMAGE' ? `
+                      <label class="block p-4 border border-dashed rounded-lg mb-4 cursor-pointer text-center bg-gray-50 hover:bg-gray-100">
+                        <input type="file" class="hidden" onchange="Actions.metaHandleImageUpload(this, 'feeds')" />
+                        <span class="text-sm font-medium text-blue-600">Télécharger une image (Fils)</span>
+                      </label>
+                      <label class="block text-sm mb-1">Texte principal</label>
+                      <textarea rows="3" onchange="Actions.metaUpdateDraft('ad', 'primaryText', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded-md mb-4">${d.ad.primaryText}</textarea>
+                      <label class="block text-sm mb-1">Titre</label>
+                      <input type="text" value="${d.ad.headline}" onchange="Actions.metaUpdateDraft('ad', 'headline', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded-md mb-4" />
+                    ` : `
+                      <div class="p-4 bg-gray-50 border rounded-lg mb-4 text-sm text-gray-600">Mode Carrousel: Imaginez ajouter des cartes ici.</div>
+                    `}
+                    <label class="block text-sm mb-1">URL</label>
+                    <input type="url" value="${d.ad.url}" onchange="Actions.metaUpdateDraft('ad', 'url', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded-md mb-4" />
+                    <label class="block text-sm mb-1">UTMs</label>
+                    <input type="text" value="${d.ad.urlParameters}" onchange="Actions.metaUpdateDraft('ad', 'urlParameters', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded-md font-mono" />
+                  ` : `<div class="p-8 text-center text-gray-500 border-2 border-dashed rounded-lg">Choisissez un post existant...</div>`}
+                </div>
+              </div>
+              <div class="w-80 bg-white rounded-lg shadow-sm border border-gray-200 shrink-0 p-4 sticky top-4">
+                 <h3 class="font-semibold text-sm mb-4">Aperçu</h3>
+                 ${d.ad.format === 'SINGLE_IMAGE' && d.ad.adSetup !== 'EXISTING' ? `
+                   <div class="border rounded-lg overflow-hidden shadow-sm">
+                      <div class="p-3 font-semibold text-sm flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center">L</div>${d.ad.facebookPage}</div>
+                      <div class="px-3 pb-2 text-sm">${d.ad.primaryText || 'Texte...'}</div>
+                      <div class="aspect-square bg-gray-100 flex items-center justify-center overflow-hidden">
+                        ${d.ad.media.feeds ? `<img src="${d.ad.media.feeds}" class="w-full h-full object-cover">` : '<span class="text-gray-400">Image</span>'}
+                      </div>
+                      <div class="p-3 bg-gray-50">
+                        <div class="text-xs text-gray-500 uppercase">${getDisplayUrl(d.ad.url)}</div>
+                        <div class="font-bold text-sm">${d.ad.headline || 'Titre'}</div>
+                      </div>
+                   </div>
+                 ` : '<div class="text-sm text-gray-500 text-center py-10 border rounded bg-gray-50">Aperçu dynamique disponible pour Image Unique</div>'}
+              </div>
+            </div>
+          `;
+        }
+
+        Content = `
+          <div class="flex-1 flex flex-col h-full bg-white absolute inset-0 z-30">
+            <header class="bg-white border-b border-gray-200 px-4 py-3 flex justify-between items-center shadow-sm shrink-0">
+              <div class="flex items-center gap-4">
+                <button onclick="Actions.metaSetView('dashboard')" class="p-2 hover:bg-gray-100 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <span class="font-semibold">${d.campaign.name}</span>
+              </div>
+              <div class="flex gap-3">
+                <button onclick="Actions.metaExport()" class="px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-md text-sm hover:bg-gray-50 flex items-center gap-2"><i data-lucide="download" class="w-4 h-4"></i> Exporter (.txt)</button>
+                <button onclick="Actions.metaPublish()" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md text-sm">Publier</button>
+              </div>
+            </header>
+            <div class="flex flex-1 overflow-hidden">
+              <div class="w-64 bg-gray-50 border-r border-gray-200 p-4">
+                <div class="space-y-1">
+                  <div onclick="Actions.metaSetStep('campaign')" class="p-2 rounded cursor-pointer text-sm ${step==='campaign'?'bg-blue-50 text-blue-700':'text-gray-700 hover:bg-gray-200'}">Campagne</div>
+                  <div class="pl-4 border-l ml-2 space-y-1">
+                    <div onclick="Actions.metaSetStep('adset')" class="p-2 rounded cursor-pointer text-sm ${step==='adset'?'bg-blue-50 text-blue-700':'text-gray-700 hover:bg-gray-200'}">Ensemble de pubs</div>
+                    <div class="pl-4 border-l ml-2">
+                      <div onclick="Actions.metaSetStep('ad')" class="p-2 rounded cursor-pointer text-sm ${step==='ad'?'bg-blue-50 text-blue-700':'text-gray-700 hover:bg-gray-200'}">Publicité</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="flex-1 overflow-y-auto bg-gray-100 p-6">
+                <div class="max-w-5xl mx-auto">${formHtml}</div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      return `<div class="flex h-screen bg-gray-100 font-sans w-full">${Sidebar}${Content}</div>`;
+    }
+
+    // --- GA4 ---
+    function ViewGA4() {
+      const s = State.ga4;
+      const data = [
+        { c: 'Organic Search', sm: 'google / organic', camp: '(organic)', u: 4520, s: 5100, es: 3468, rev: 2150 },
+        { c: 'Direct', sm: '(direct) / (none)', camp: '(direct)', u: 2100, s: 2300, es: 1035, rev: 540 },
+        { c: 'Paid Social', sm: 'facebook / ad', camp: 'lancement', u: 1250, s: 1450, es: 754, rev: 45 },
+        { c: 'Paid Social', sm: 'facebook / ad', camp: 'retargeting', u: 320, s: 480, es: 360, rev: 850 },
+        { c: 'Paid Search', sm: 'google / cpc', camp: 'marque', u: 640, s: 710, es: 511, rev: 1850 },
+      ];
+
+      const keyMap = { 'channel': 'c', 'sourceMedium': 'sm', 'campaign': 'camp' };
+      const dimKey = keyMap[s.primaryDimension];
+
+      const aggregated = data.reduce((acc, row) => {
+        const key = row[dimKey];
+        if (!acc[key]) acc[key] = { name: key, u: 0, s: 0, es: 0, rev: 0, isMeta: false };
+        acc[key].u += row.u; acc[key].s += row.s; acc[key].es += row.es; acc[key].rev += row.rev;
+        acc[key].isMeta = acc[key].isMeta || row.sm === 'facebook / ad';
+        return acc;
+      }, {});
+
+      const rows = Object.values(aggregated).filter(r => r.name.toLowerCase().includes(s.searchQuery.toLowerCase())).map(r => `
+        <tr class="border-b border-gray-100 hover:bg-gray-50 ${r.isMeta ? 'bg-blue-50/30' : ''}">
+          <td class="px-4 py-3 sticky left-0 bg-white flex items-center gap-2 ${r.isMeta ? 'font-bold text-blue-800' : ''}">
+            ${r.name} ${r.isMeta ? '<span class="px-1.5 py-0.5 bg-blue-600 text-white text-[10px] rounded uppercase ml-auto">Meta Ads</span>' : ''}
+          </td>
+          <td class="px-4 py-3 text-right">${r.u}</td>
+          <td class="px-4 py-3 text-right">${r.s}</td>
+          <td class="px-4 py-3 text-right">${Math.round((r.es/r.s)*100)}%</td>
+          <td class="px-4 py-3 text-right font-medium">${r.rev} €</td>
+        </tr>
+      `).join('');
+
+      return `
+        <div class="flex h-screen bg-white font-sans w-full">
+          <div class="w-16 bg-gray-50 border-r flex flex-col items-center z-20 shrink-0">
+            <div class="h-16 flex items-center justify-center border-b w-full">
+              <button onclick="Actions.nav('hub')" class="w-8 h-8 bg-gray-200 hover:bg-gray-300 rounded flex items-center justify-center transition-colors"><i data-lucide="arrow-left" class="w-4 h-4"></i></button>
+            </div>
+            <nav class="flex flex-col w-full mt-4">
+              <div onclick="Actions.ga4SetActiveMenu('home')" class="p-3 w-12 mx-auto rounded-xl cursor-pointer flex justify-center mb-2 ${s.activeMenu==='home'?'bg-blue-50 text-blue-600':'text-gray-500'}"><i data-lucide="home" class="w-5 h-5"></i></div>
+              <div onclick="Actions.ga4SetActiveMenu('acq-traffic')" class="p-3 w-12 mx-auto rounded-xl cursor-pointer flex justify-center mb-2 ${s.activeMenu==='acq-traffic'?'bg-blue-50 text-blue-600':'text-gray-500'}"><i data-lucide="bar-chart-2" class="w-5 h-5"></i></div>
+            </nav>
+          </div>
+          <div class="flex-1 flex flex-col bg-gray-50 overflow-hidden">
+            <header class="h-16 bg-white border-b px-6 flex items-center justify-between shrink-0 shadow-sm"><span class="font-medium text-gray-800">Boutique de l'école (GA4)</span></header>
+            <main class="flex-1 overflow-auto p-6">
+              ${s.activeMenu === 'home' ? `<div class="max-w-5xl mx-auto"><h1 class="text-2xl mb-6">Accueil</h1><div class="bg-white p-6 rounded shadow-sm">Simulateur Accueil Actif</div></div>` : `
+              <div class="max-w-[1400px] mx-auto">
+                <h1 class="text-2xl font-normal mb-6">Acquisition de trafic</h1>
+                <div class="bg-white rounded-lg border shadow-sm flex flex-col">
+                  <div class="p-4 border-b flex justify-between gap-4 flex-wrap">
+                    <input type="text" placeholder="Rechercher..." oninput="Actions.ga4SetSearchQuery(this.value)" class="px-3 py-1.5 border rounded-md text-sm outline-none focus:ring-1 focus:ring-blue-500" />
+                    <div class="flex items-center gap-2 bg-blue-50 border border-blue-200 p-2 rounded-lg shadow-sm">
+                      <span class="text-xs font-semibold text-blue-800">🎯 Dimension UTM :</span>
+                      <select onchange="Actions.ga4SetPrimaryDimension(this.value)" class="px-3 py-1.5 border border-blue-300 rounded text-sm bg-white font-medium outline-none">
+                        ${opt('channel', s.primaryDimension, 'Groupe de canaux par défaut')}
+                        ${opt('sourceMedium', s.primaryDimension, 'Source / Support')}
+                        ${opt('campaign', s.primaryDimension, 'Campagne')}
+                      </select>
+                    </div>
+                  </div>
+                  <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left">
+                      <thead class="bg-gray-50 text-xs uppercase border-b">
+                        <tr><th class="p-4 sticky left-0 bg-gray-50 w-64">Dimension</th><th class="p-4 text-right">Utilisateurs</th><th class="p-4 text-right">Sessions</th><th class="p-4 text-right">Taux d'eng.</th><th class="p-4 text-right">Revenus</th></tr>
+                      </thead>
+                      <tbody>${rows}</tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>`}
+            </main>
+          </div>
+        </div>
+      `;
+    }
+
+    // --- GOOGLE ADS ---
+    function ViewGAds() {
+      const s = State.gads;
+      const Sidebar = `
+        <div class="w-16 bg-[#202124] flex flex-col items-center py-4 z-20 shrink-0">
+          <button onclick="Actions.nav('hub')" class="w-10 h-10 hover:bg-white/10 rounded-full flex items-center justify-center text-gray-300 mb-6"><i data-lucide="arrow-left" class="w-5 h-5"></i></button>
+          <div class="w-8 h-8 mb-6 text-green-400"><i data-lucide="search" class="w-7 h-7"></i></div>
+          <nav class="flex flex-col gap-4 flex-1 w-full text-gray-400">
+            <div onclick="Actions.gadsSetView('dashboard')" class="p-3 rounded-full cursor-pointer flex justify-center ${s.view === 'dashboard' ? 'bg-[#e8f0fe] text-[#1a73e8]' : 'hover:bg-white/10 hover:text-white'}"><i data-lucide="home" class="w-5 h-5"></i></div>
+            <div class="p-3 rounded-full cursor-pointer flex justify-center hover:bg-white/10 hover:text-white"><i data-lucide="target" class="w-5 h-5"></i></div>
+          </nav>
+        </div>`;
+
+      let Content = '';
+      if (s.view === 'dashboard') {
+        Content = `
+          <div class="flex-1 flex flex-col h-full bg-gray-50">
+            <header class="bg-white border-b px-6 py-3 flex justify-between items-center shadow-sm shrink-0"><span class="text-xl text-gray-600 font-medium">Toutes les campagnes</span></header>
+            <div class="px-6 py-4 flex items-center justify-between shrink-0">
+              <button onclick="Actions.gadsOpenCreate()" class="flex items-center gap-2 px-5 py-2 bg-[#1a73e8] hover:bg-[#1557b0] text-white font-medium rounded-full text-sm shadow-sm"><i data-lucide="plus" class="w-4 h-4"></i> Nouvelle campagne</button>
+            </div>
+            <div class="flex-1 overflow-auto px-6 pb-6">
+              <div class="bg-white rounded-lg shadow-sm border overflow-hidden">
+                <table class="w-full text-sm text-left whitespace-nowrap">
+                  <thead class="text-xs text-gray-600 bg-gray-50 border-b uppercase font-medium">
+                    <tr><th class="px-4 py-3 border-r">État</th><th class="px-4 py-3 border-r">Campagne</th><th class="px-4 py-3 border-r">Type</th><th class="px-4 py-3 text-right">Budget</th><th class="px-4 py-3 text-right">Clics</th><th class="px-4 py-3 text-right">Conversions</th></tr>
+                  </thead>
+                  <tbody>
+                    ${s.campaigns.map(c => `
+                      <tr class="hover:bg-gray-50 border-b border-gray-100">
+                        <td class="px-4 py-2 border-r"><div class="w-2.5 h-2.5 rounded-full ${c.status==='active'?'bg-green-500':'bg-gray-400'}"></div></td>
+                        <td class="px-4 py-2 font-medium text-[#1a73e8] border-r">${c.name}</td><td class="px-4 py-2 border-r">${c.type}</td><td class="px-4 py-2 text-right border-r">${c.budget}</td><td class="px-4 py-2 text-right">${c.clicks}</td><td class="px-4 py-2 text-right text-blue-600 font-medium">${c.conversions}</td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        `;
+      } else {
+        const d = s.draft;
+        const step = s.currentStep;
+        let formHtml = '';
+
+        if (step === 'settings') {
+          formHtml = `
+            <div class="space-y-8 bg-white p-6 rounded shadow-sm border">
+              <h2 class="text-xl font-medium mb-4">Objectifs et Type de campagne</h2>
+              <input type="text" value="${d.settings.name}" onchange="Actions.gadsUpdateDraft('settings', 'name', this.value)" class="w-full p-2 border rounded outline-none focus:border-[#1a73e8] mb-4" />
+              <select onchange="Actions.gadsUpdateDraft('settings', 'type', this.value)" class="w-full p-2 border rounded outline-none focus:border-[#1a73e8] mb-4">
+                ${opt('SEARCH', d.settings.type, 'Réseau de Recherche')} ${opt('PMAX', d.settings.type, 'Performance Max')}
+              </select>
+              <h2 class="text-xl font-medium mt-6 mb-4">Budget</h2>
+              <input type="number" value="${d.settings.budget}" onchange="Actions.gadsUpdateDraft('settings', 'budget', this.value)" class="w-full p-2 border rounded outline-none focus:border-[#1a73e8]" />
+            </div>
+          `;
+        } else if (step === 'adgroup') {
+          formHtml = `
+            <div class="bg-white p-6 rounded shadow-sm border">
+              <h2 class="text-xl font-medium mb-4">Mots-clés / Audience</h2>
+              <textarea onchange="Actions.gadsUpdateDraft('adGroup', 'keywords', this.value)" class="w-full h-64 p-4 border rounded font-mono text-sm outline-none focus:border-[#1a73e8]">${d.adGroup.keywords}</textarea>
+            </div>
+          `;
+        } else if (step === 'ads') {
+          formHtml = `
+            <div class="flex gap-6">
+              <div class="flex-1 space-y-4 bg-white p-6 rounded shadow-sm border">
+                <h2 class="text-xl font-medium">Annonces</h2>
+                <input type="url" value="${d.ad.finalUrl}" onchange="Actions.gadsUpdateDraft('ad', 'finalUrl', this.value)" placeholder="URL Finale" class="w-full p-2 border rounded outline-none focus:border-[#1a73e8]" />
+                <h3 class="font-medium mt-4">Titres (30 caractères max)</h3>
+                ${d.ad.headlines.slice(0,3).map((h, i) => `
+                  <input type="text" value="${h}" onchange="Actions.gadsUpdateArrayField('ad', 'headlines', ${i}, this.value)" class="w-full p-2 border rounded outline-none mb-2 focus:border-[#1a73e8]" />
+                `).join('')}
+                <h3 class="font-medium mt-4">Descriptions (90 caractères max)</h3>
+                ${d.ad.descriptions.slice(0,2).map((desc, i) => `
+                  <textarea onchange="Actions.gadsUpdateArrayField('ad', 'descriptions', ${i}, this.value)" class="w-full p-2 border rounded outline-none mb-2 resize-none focus:border-[#1a73e8]" rows="2">${desc}</textarea>
+                `).join('')}
+              </div>
+              <div class="w-80 bg-white rounded shadow-sm border shrink-0 p-4 sticky top-4 self-start">
+                 <h3 class="font-medium text-sm mb-4 bg-gray-50 p-2 rounded">Aperçu Google Search</h3>
+                 <div class="text-[13px] text-gray-900 font-bold mb-0.5">Sponsorisé</div>
+                 <div class="text-[12px] text-gray-700 truncate mb-1">${getDisplayUrl(d.ad.finalUrl)}</div>
+                 <div class="text-[20px] text-[#1a0dab] leading-tight mb-1 truncate">${d.ad.headlines.filter(h=>h).join(' | ') || 'Titre'}</div>
+                 <div class="text-[14px] text-[#4d5156] leading-snug">${d.ad.descriptions.filter(d=>d).join(' - ') || 'Description...'}</div>
+              </div>
+            </div>
+          `;
+        }
+
+        Content = `
+          <div class="flex-1 flex flex-col h-full bg-gray-50 absolute inset-0 z-30">
+            <header class="bg-white border-b px-6 py-3 flex justify-between items-center shrink-0">
+              <div class="flex items-center gap-4">
+                <button onclick="Actions.gadsSetView('dashboard')" class="p-2 hover:bg-gray-100 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <span class="font-medium text-lg">Nouvelle campagne</span>
+              </div>
+              <div class="flex gap-3">
+                <button onclick="Actions.gadsExport()" class="px-4 py-2 border rounded font-medium text-sm flex items-center gap-2"><i data-lucide="download" class="w-4 h-4"></i> Exporter (.txt)</button>
+                ${step === 'ads' 
+                  ? `<button onclick="Actions.gadsPublish()" class="px-6 py-2 bg-[#1a73e8] text-white rounded text-sm">Publier</button>`
+                  : `<button onclick="Actions.gadsSetStep('${step === 'settings' ? 'adgroup' : 'ads'}')" class="px-6 py-2 bg-[#1a73e8] text-white rounded text-sm">Suivant</button>`
+                }
+              </div>
+            </header>
+            <div class="flex flex-1 overflow-hidden">
+              <div class="w-64 bg-gray-50 border-r p-4">
+                <div class="space-y-2">
+                  <div onclick="Actions.gadsSetStep('settings')" class="p-3 rounded cursor-pointer text-sm ${step==='settings'?'bg-[#e8f0fe] text-[#1a73e8]':'text-gray-600'}">1. Paramètres</div>
+                  <div onclick="Actions.gadsSetStep('adgroup')" class="p-3 rounded cursor-pointer text-sm ${step==='adgroup'?'bg-[#e8f0fe] text-[#1a73e8]':'text-gray-600'}">2. Groupes et ciblage</div>
+                  <div onclick="Actions.gadsSetStep('ads')" class="p-3 rounded cursor-pointer text-sm ${step==='ads'?'bg-[#e8f0fe] text-[#1a73e8]':'text-gray-600'}">3. Annonces</div>
+                </div>
+              </div>
+              <div class="flex-1 overflow-y-auto p-6 md:p-10"><div class="max-w-5xl mx-auto">${formHtml}</div></div>
+            </div>
+          </div>
+        `;
+      }
+
+      return `<div class="flex h-screen font-sans w-full bg-white">${Sidebar}${Content}</div>`;
+    }
+
+    // ==========================================
+    // INITIALISATION
+    // ==========================================
+    window.State = State;
+    window.Actions = Actions;
+    window.onload = Render;
+
+  </script>
+</body>
+</html>
