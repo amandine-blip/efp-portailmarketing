@@ -1,56 +1,790 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Portail de Formation Marketing</title>
-  
-  <!-- Tailwind CSS via CDN pour le style sans build -->
   <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- Lucide Icons via CDN -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-
   <style>
-    /* Styles personnalisés */
-    body {
-      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .text-shadow-sm { text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+    .line-clamp-2 {
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
     }
-    .hide-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-    .hide-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-    .text-shadow-sm {
-      text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    .line-clamp-3 {
+      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
     }
   </style>
 </head>
-<body class="bg-gray-50 text-gray-800 h-screen overflow-hidden">
-  
-  <!-- Conteneur principal de l'application -->
-  <div id="app" class="h-full w-full"></div>
+<body class="bg-gray-50">
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState } = React;
 
-  <!-- Logique de l'application (Vanilla JS) -->
-  <script>
-    // ==========================================
-    // LOGOS (SVGs natifs)
-    // ==========================================
-    const Logos = {
-      Meta: `<svg viewBox="0 0 256 256" width="48" height="48" xmlns="http://www.w3.org/2000/svg"><path d="M110.158 141.054c-13.626 19.324-34.928 31.066-57.82 31.066-41.22 0-74.67-33.456-74.68-74.68 0-41.218 33.46-74.676 74.68-74.676 22.894 0 44.195 11.745 57.82 31.07l20.485 29.043c13.623-19.325 34.922-31.07 57.813-31.07 41.218 0 74.675 33.458 74.675 74.676 0 41.224-33.457 74.68-74.675 74.68-22.89 0-44.19-11.742-57.814-31.066l-20.484-29.043z" fill="#0668E1"/></svg>`,
-      GA4: `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18.75 20.833h-1.667a2.5 2.5 0 0 1-2.5-2.5V5.625a2.5 2.5 0 0 1 2.5-2.5h1.667a2.5 2.5 0 0 1 2.5 2.5v12.708a2.5 2.5 0 0 1-2.5 2.5z" fill="#F9AB00"/><path d="M12.083 20.833h-1.666a2.5 2.5 0 0 1-2.5-2.5v-7.083a2.5 2.5 0 0 1 2.5-2.5h1.666a2.5 2.5 0 0 1 2.5 2.5v7.083a2.5 2.5 0 0 1-2.5 2.5z" fill="#E37400"/><path d="M5.417 20.833H3.75a2.5 2.5 0 0 1-2.5-2.5v-3.333a2.5 2.5 0 0 1 2.5-2.5h1.667a2.5 2.5 0 0 1 2.5 2.5v3.333a2.5 2.5 0 0 1-2.5 2.5z" fill="#F9AB00"/></svg>`,
-      GAds: `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.53 2.11c-.58-.58-1.53-.58-2.12 0l-7.3 7.3c-.58.58-.58 1.53 0 2.12l7.3 7.3c.58.58 1.53.58 2.12 0l7.3-7.3c.58-.58.58-1.53 0-2.12l-7.3-7.3z" fill="#F9AB00"/><path d="M11.53 2.11c-.58-.58-1.53-.58-2.12 0l-7.3 7.3c-.58.58-.58 1.53 0 2.12l1.06 1.06 8.36-8.36-1.06-1.06z" fill="#E37400"/><path d="M21.89 9.41l-1.06-1.06-8.36 8.36 1.06 1.06c.58.58 1.53.58 2.12 0l7.3-7.3c.58-.58.58-1.54 0-2.12z" fill="#34A853"/><path d="M10.47 21.89c.58.58 1.53.58 2.12 0l8.36-8.36-1.06-1.06-8.36 8.36-1.06 1.06z" fill="#188038"/><path d="M9.41 21.89l1.06-1.06L2.11 12.47l-1.06 1.06c-.58.58-.58 1.53 0 2.12l7.3 7.3c.58.58 1.53.58 2.12 0z" fill="#4285F4"/></svg>`
+    function makeIcon(iconName) {
+      return function IconComponent({ size = 20, strokeWidth = 1.5, className = "" }) {
+        const icon = window.lucide && window.lucide.icons ? window.lucide.icons[iconName] : null;
+        const svg = icon ? icon.toSvg({
+          width: size,
+          height: size,
+          "stroke-width": strokeWidth,
+          class: className
+        }) : "";
+        return <span className={`inline-flex ${className}`} dangerouslySetInnerHTML={{ __html: svg }} />;
+      };
+    }
+
+    const Layout = makeIcon('layout-dashboard');
+    const Megaphone = makeIcon('megaphone');
+    const Users = makeIcon('users');
+    const CreditCard = makeIcon('credit-card');
+    const Settings = makeIcon('settings');
+    const Plus = makeIcon('plus');
+    const Search = makeIcon('search');
+    const Filter = makeIcon('filter');
+    const X = makeIcon('x');
+    const ChevronRight = makeIcon('chevron-right');
+    const ImageIcon = makeIcon('image');
+    const AlignLeft = makeIcon('align-left');
+    const Link = makeIcon('link');
+    const MoreHorizontal = makeIcon('more-horizontal');
+    const MoreVertical = makeIcon('more-vertical');
+    const Folder = makeIcon('folder');
+    const MousePointer = makeIcon('mouse-pointer-click');
+    const Eye = makeIcon('eye');
+    const BarChart2 = makeIcon('bar-chart-2');
+    const ThumbsUp = makeIcon('thumbs-up');
+    const MessageSquare = makeIcon('message-square');
+    const Share = makeIcon('share');
+    const Star = makeIcon('star');
+    const Loader2 = makeIcon('loader-2');
+    const Smartphone = makeIcon('smartphone');
+    const Monitor = makeIcon('monitor');
+    const Edit = makeIcon('edit');
+    const ChevronDown = makeIcon('chevron-down');
+    const AlertCircle = makeIcon('alert-circle');
+    const Home = makeIcon('home');
+    const Compass = makeIcon('compass');
+    const TrendingUp = makeIcon('trending-up');
+    const Bell = makeIcon('bell');
+    const User = makeIcon('user');
+    const Calendar = makeIcon('calendar');
+    const HelpCircle = makeIcon('help-circle');
+    const ArrowRight = makeIcon('arrow-right');
+    const ArrowLeft = makeIcon('arrow-left');
+    const Target = makeIcon('target');
+    const FileText = makeIcon('file-text');
+    const Globe = makeIcon('globe');
+    const Sidebar = makeIcon('panel-left');
+    const Trash = makeIcon('trash-2');
+    const MapPin = makeIcon('map-pin');
+    const Download = makeIcon('download');
+
+
+// ==========================================
+// APPLICATION PRINCIPALE (HUB)
+// ==========================================
+function App() {
+  const [currentApp, setCurrentApp] = useState('hub');
+
+  if (currentApp === 'meta') return <MetaAdsSimulator onExit={() => setCurrentApp('hub')} />;
+  if (currentApp === 'ga4') return <GA4Simulator onExit={() => setCurrentApp('hub')} />;
+  if (currentApp === 'googleads') return <GoogleAdsSimulator onExit={() => setCurrentApp('hub')} />;
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-6 font-sans">
+      <div className="max-w-5xl w-full text-center mb-12">
+        <h1 className="text-4xl font-extrabold text-gray-900 mb-4 tracking-tight">Portail de Formation Marketing</h1>
+        <p className="text-lg text-gray-600">Sélectionnez un environnement pour démarrer la simulation pratique.</p>
+      </div>
+
+      <div className="flex flex-col items-center w-full">
+        {/* Première ligne : Meta et GA4 */}
+        <div className="grid md:grid-cols-2 gap-8 max-w-4xl w-full mb-8">
+          <div onClick={() => setCurrentApp('meta')} className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 p-8 cursor-pointer border-2 border-transparent hover:border-blue-500 flex flex-col items-center text-center group">
+             <div className="w-20 h-20 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+               <Layout size={40} strokeWidth={1.5} />
+             </div>
+             <h2 className="text-2xl font-bold text-gray-900 mb-3">Meta Ads Manager</h2>
+             <p className="text-gray-500 leading-relaxed text-sm">
+               Simulateur de création de campagnes, paramétrage d'audiences, gestion des placements, carrousels et prévisualisation des safe zones.
+             </p>
+          </div>
+
+          <div onClick={() => setCurrentApp('ga4')} className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 p-8 cursor-pointer border-2 border-transparent hover:border-amber-500 flex flex-col items-center text-center group">
+             <div className="w-20 h-20 bg-amber-50 text-amber-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+               <BarChart2 size={40} strokeWidth={1.5} />
+             </div>
+             <h2 className="text-2xl font-bold text-gray-900 mb-3">Google Analytics 4</h2>
+             <p className="text-gray-500 leading-relaxed text-sm">
+               Analyse de l'acquisition, chronologie du trafic avec graphiques interactifs, comportement sur les pages et mesure des événements clés.
+             </p>
+          </div>
+        </div>
+
+        {/* Deuxième ligne : Google Ads centré */}
+        <div className="w-full md:max-w-[432px]">
+          <div onClick={() => setCurrentApp('googleads')} className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 p-8 cursor-pointer border-2 border-transparent hover:border-green-500 flex flex-col items-center text-center group">
+             <div className="w-20 h-20 bg-green-50 text-green-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+               <Search size={40} strokeWidth={1.5} />
+             </div>
+             <h2 className="text-2xl font-bold text-gray-900 mb-3">Google Ads</h2>
+             <p className="text-gray-500 leading-relaxed text-sm">
+               Créez des campagnes sur le Réseau de Recherche, Display ou PMax. Définissez vos mots-clés, enchères et annonces responsives (RSA).
+             </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ==========================================
+// SIMULATEUR GOOGLE ADS
+// ==========================================
+function GoogleAdsSimulator({ onExit }) {
+  const [view, setView] = useState('dashboard');
+
+  const [campaigns, setCampaigns] = useState([
+    { id: 1, name: 'Search - Mots-clés Marque', type: 'Search', status: 'active', budget: '15,00 €/jour', clicks: '450', impressions: '1 200', ctr: '37,50 %', cpc: '0,45 €', cost: '202,50 €', conversions: '45' },
+    { id: 2, name: 'PMax - Lancement Produit', type: 'Performance Max', status: 'active', budget: '50,00 €/jour', clicks: '1 240', impressions: '45 000', ctr: '2,75 %', cpc: '0,85 €', cost: '1 054,00 €', conversions: '112' },
+    { id: 3, name: 'Display - Retargeting Visiteurs', type: 'Display', status: 'paused', budget: '10,00 €/jour', clicks: '85', impressions: '15 400', ctr: '0,55 %', cpc: '0,20 €', cost: '17,00 €', conversions: '3' },
+  ]);
+
+  const [draft, setDraft] = useState(getInitialGoogleAdsDraft());
+  const [currentStep, setCurrentStep] = useState('settings');
+
+  function getInitialGoogleAdsDraft() {
+    const initialHeadlines = Array(15).fill('');
+    initialHeadlines[0] = 'Formation Marketing Digital';
+    initialHeadlines[1] = 'Devenez Expert Google Ads';
+    initialHeadlines[2] = 'Inscriptions Ouvertes';
+
+    const initialDescriptions = Array(4).fill('');
+    initialDescriptions[0] = 'Inscrivez-vous dès maintenant à notre formation complète en marketing digital.';
+    initialDescriptions[1] = 'Maîtrisez le Media Buying, Google Ads et Meta Ads avec des formateurs experts.';
+
+    return {
+      settings: { 
+        name: 'Nouvelle campagne', 
+        goal: 'SALES', 
+        type: 'SEARCH', 
+        budget: 20, 
+        bidding: 'CONVERSIONS', 
+        location: 'Belgique', 
+        language: 'Français', 
+      },
+      adGroup: { name: 'Groupe d\'annonces 1', keywords: 'formation marketing digital\ncours google ads\n[ecole de marketing]\n"apprendre le media buying"' },
+      ad: { 
+        finalUrl: 'https://www.efp.be/formations', 
+        path1: 'marketing', path2: 'digital', 
+        headlines: initialHeadlines, descriptions: initialDescriptions, 
+        images: [], logos: [],
+        sitelinks: [
+          { text: 'Toutes nos formations', url: 'https://www.efp.be/toutes-formations' },
+          { text: 'Inscriptions 2024', url: 'https://www.efp.be/inscription' },
+          { text: '', url: '' }, { text: '', url: '' }
+        ]
+      }
     };
+  }
 
-    // ==========================================
-    // ETAT GLOBAL (STATE)
-    // ==========================================
-    const defaultMetaDraft = (objective = 'TRAFFIC') => ({
+  const handleCreateNew = () => { setDraft(getInitialGoogleAdsDraft()); setCurrentStep('settings'); setView('create'); };
+
+  const handlePublish = () => {
+    const typeLabels = { 'SEARCH': 'Search', 'DISPLAY': 'Display', 'PMAX': 'Performance Max', 'VIDEO': 'Vidéo' };
+    const newCampaign = {
+      id: Date.now(), name: draft.settings.name, type: typeLabels[draft.settings.type], status: 'active', budget: `${draft.settings.budget},00 €/jour`,
+      clicks: '0', impressions: '0', ctr: '0,00 %', cpc: '0,00 €', cost: '0,00 €', conversions: '0'
+    };
+    setCampaigns([newCampaign, ...campaigns]);
+    setView('dashboard');
+  };
+
+  const updateDraft = (level, field, value) => {
+    setDraft(prev => ({ ...prev, [level]: { ...prev[level], [field]: value } }));
+  };
+
+  const updateArrayField = (level, field, index, value) => {
+    const newArray = [...draft[level][field]];
+    newArray[index] = value;
+    updateDraft(level, field, newArray);
+  };
+
+  return (
+    <div className="flex h-screen bg-gray-100 font-sans text-gray-800 overflow-hidden w-full">
+      {/* Sidebar Google Ads */}
+      <div className="w-16 bg-[#202124] flex flex-col items-center py-4 z-20 shrink-0">
+        <button onClick={onExit} className="w-10 h-10 hover:bg-white/10 rounded-full flex items-center justify-center text-gray-300 mb-6 transition-colors" title="Retour au portail">
+          <ArrowLeft size={20} />
+        </button>
+        <div className="w-8 h-8 mb-6 text-green-400"><Search size={28} /></div>
+        <nav className="flex flex-col gap-4 flex-1 w-full text-gray-400">
+          <GAdsNavItem icon={<Home size={20} />} active={view === 'dashboard'} onClick={() => setView('dashboard')} title="Vue d'ensemble" />
+          <GAdsNavItem icon={<Target size={20} />} active={view === 'create'} title="Campagnes" />
+          <GAdsNavItem icon={<Filter size={20} />} title="Mots-clés" />
+          <GAdsNavItem icon={<Sidebar size={20} />} title="Annonces" />
+          <GAdsNavItem icon={<Users size={20} />} title="Audiences" />
+        </nav>
+      </div>
+
+      <div className="flex-1 flex flex-col h-full overflow-hidden relative bg-gray-50">
+        {view === 'dashboard' ? (
+          <GAdsDashboard campaigns={campaigns} onCreateNew={handleCreateNew} />
+        ) : (
+          <GAdsCreationFlow draft={draft} updateDraft={updateDraft} updateArrayField={updateArrayField} currentStep={currentStep} setCurrentStep={setCurrentStep} onClose={() => setView('dashboard')} onPublish={handlePublish} />
+        )}
+      </div>
+    </div>
+  );
+}
+
+function GAdsDashboard({ campaigns, onCreateNew }) {
+  return (
+    <div className="flex-1 flex flex-col h-full">
+      <header className="bg-white border-b border-gray-200 px-6 py-3 flex justify-between items-center shadow-sm shrink-0">
+        <div className="flex items-center gap-3">
+          <span className="text-xl text-gray-600 font-medium">Toutes les campagnes</span>
+        </div>
+        <div className="flex items-center gap-4">
+          <div className="text-sm text-gray-600 border-r pr-4">Numéro client : <strong>123-456-7890</strong></div>
+          <button className="text-gray-500 hover:text-gray-800"><Search size={18} /></button>
+          <button className="text-gray-500 hover:text-gray-800"><HelpCircle size={18} /></button>
+          <button className="text-gray-500 hover:text-gray-800"><Bell size={18} /></button>
+          <div className="w-8 h-8 rounded-full bg-[#1a73e8] text-white flex items-center justify-center font-medium text-sm">EF</div>
+        </div>
+      </header>
+
+      <div className="px-6 py-4 flex items-center justify-between shrink-0">
+        <button onClick={onCreateNew} className="flex items-center gap-2 px-5 py-2 bg-[#1a73e8] hover:bg-[#1557b0] text-white font-medium rounded-full text-sm transition-colors shadow-sm">
+          <Plus size={18} /> Nouvelle campagne
+        </button>
+      </div>
+
+      <div className="flex-1 overflow-auto px-6 pb-6">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left whitespace-nowrap">
+              <thead className="text-xs text-gray-600 bg-gray-50 border-b border-gray-200 uppercase font-medium">
+                <tr>
+                  <th className="px-4 py-3 border-r border-gray-200">État</th>
+                  <th className="px-4 py-3 border-r border-gray-200 text-blue-600">Campagne</th>
+                  <th className="px-4 py-3 border-r border-gray-200">Type de campagne</th>
+                  <th className="px-4 py-3 text-right border-r border-gray-200">Budget</th>
+                  <th className="px-4 py-3 text-right hover:bg-gray-100 cursor-pointer">Clics</th>
+                  <th className="px-4 py-3 text-right hover:bg-gray-100 cursor-pointer">Impressions</th>
+                  <th className="px-4 py-3 text-right hover:bg-gray-100 cursor-pointer">CTR</th>
+                  <th className="px-4 py-3 text-right hover:bg-gray-100 cursor-pointer">CPC moy.</th>
+                  <th className="px-4 py-3 text-right hover:bg-gray-100 cursor-pointer">Coût</th>
+                  <th className="px-4 py-3 text-right hover:bg-gray-100 cursor-pointer">Conversions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {campaigns.map((camp) => (
+                  <tr key={camp.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-4 py-2 border-r border-gray-100 flex items-center gap-2">
+                      <div className={`w-2.5 h-2.5 rounded-full ${camp.status === 'active' ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+                    </td>
+                    <td className="px-4 py-2 font-medium text-[#1a73e8] hover:underline cursor-pointer border-r border-gray-100">{camp.name}</td>
+                    <td className="px-4 py-2 text-gray-600 border-r border-gray-100">{camp.type}</td>
+                    <td className="px-4 py-2 text-right text-gray-600 border-r border-gray-100">{camp.budget}</td>
+                    <td className="px-4 py-2 text-right">{camp.clicks}</td>
+                    <td className="px-4 py-2 text-right">{camp.impressions}</td>
+                    <td className="px-4 py-2 text-right">{camp.ctr}</td>
+                    <td className="px-4 py-2 text-right">{camp.cpc}</td>
+                    <td className="px-4 py-2 text-right font-medium">{camp.cost}</td>
+                    <td className="px-4 py-2 text-right font-medium text-blue-600">{camp.conversions}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function GAdsCreationFlow({ draft, updateDraft, updateArrayField, currentStep, setCurrentStep, onClose, onPublish }) {
+  const steps = [
+    { id: 'settings', label: '1. Paramètres de la campagne' },
+    { id: 'adgroup', label: '2. Groupes d\'annonces et ciblage' },
+    { id: 'ads', label: '3. Annonces et Composants' }
+  ];
+
+  const handleExport = () => {
+    let content = `=== ÉVALUATION : SIMULATION GOOGLE ADS ===\nDate : ${new Date().toLocaleString('fr-FR')}\n\n`;
+    content += `--- 1. PARAMÈTRES DE LA CAMPAGNE ---\nNom : ${draft.settings.name}\nObjectif : ${draft.settings.goal}\nType : ${draft.settings.type}\nBudget : ${draft.settings.budget}€ / jour\nStratégie d'enchères : ${draft.settings.bidding}\nZones : ${draft.settings.location}\nLangues : ${draft.settings.language}\n\n`;
+    content += `--- 2. GROUPE D'ANNONCES ---\nNom : ${draft.adGroup.name}\nMots-clés :\n${draft.adGroup.keywords || 'N/A'}\n\n`;
+    content += `--- 3. ANNONCES ---\nURL finale : ${draft.ad.finalUrl}\nChemin : /${draft.ad.path1}/${draft.ad.path2}\n\nTitres :\n${draft.ad.headlines.filter(h => h.trim()).map(h => '- ' + h).join('\n')}\n\nDescriptions :\n${draft.ad.descriptions.filter(d => d.trim()).map(d => '- ' + d).join('\n')}\n\nSitelinks :\n${draft.ad.sitelinks.filter(s => s.text.trim()).map(s => `- ${s.text} (${s.url})`).join('\n')}`;
+
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `GoogleAds_${draft.settings.name.replace(/\s+/g, '_')}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  return (
+    <div className="flex-1 flex flex-col h-full bg-white absolute inset-0 z-30">
+      <header className="bg-white border-b border-gray-200 px-6 py-3 flex justify-between items-center shrink-0">
+        <div className="flex items-center gap-4">
+          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors"><X size={20} className="text-gray-500" /></button>
+          <span className="font-medium text-gray-800 text-lg">Nouvelle campagne</span>
+        </div>
+        <div className="flex gap-3">
+          <button onClick={handleExport} className="px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded text-sm hover:bg-gray-50 flex items-center gap-2">
+            <Download size={16} /> Exporter (.txt)
+          </button>
+          {currentStep === 'ads' ? (
+            <button onClick={onPublish} className="px-6 py-2 bg-[#1a73e8] hover:bg-[#1557b0] text-white font-medium rounded text-sm transition-colors shadow-sm">Publier la campagne</button>
+          ) : (
+            <button onClick={() => setCurrentStep(currentStep === 'settings' ? 'adgroup' : 'ads')} className="px-6 py-2 bg-[#1a73e8] hover:bg-[#1557b0] text-white font-medium rounded text-sm transition-colors shadow-sm">Suivant</button>
+          )}
+        </div>
+      </header>
+
+      <div className="flex flex-1 overflow-hidden">
+        <div className="w-64 bg-gray-50 border-r border-gray-200 overflow-y-auto p-4 hidden md:block shrink-0">
+          <div className="space-y-2 mt-4">
+            {steps.map(step => (
+              <div key={step.id} onClick={() => setCurrentStep(step.id)} className={`p-3 rounded-md cursor-pointer text-sm font-medium transition-colors ${currentStep === step.id ? 'bg-[#e8f0fe] text-[#1a73e8]' : 'text-gray-600 hover:bg-gray-200'}`}>
+                {step.label}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-y-auto bg-white p-6 md:p-10">
+          <div className={`mx-auto pb-20 ${currentStep === 'ads' ? 'max-w-6xl' : 'max-w-3xl'}`}>
+            {currentStep === 'settings' && <GAdsSettingsForm draft={draft} updateDraft={updateDraft} />}
+            {currentStep === 'adgroup' && <GAdsAdGroupForm draft={draft} updateDraft={updateDraft} />}
+            {currentStep === 'ads' && <GAdsAdForm draft={draft} updateDraft={updateDraft} updateArrayField={updateArrayField} />}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function GAdsSettingsForm({ draft, updateDraft }) {
+  return (
+    <div className="space-y-8">
+      <section>
+        <h2 className="text-xl font-medium mb-4 text-gray-900">Objectif et Type de campagne</h2>
+        <div className="space-y-6">
+          <div className="space-y-1">
+            <label className="text-sm font-medium text-gray-700">Nom de la campagne</label>
+            <input type="text" value={draft.settings.name} onChange={(e) => updateDraft('settings', 'name', e.target.value)} className="w-full max-w-md p-2 border border-gray-300 rounded focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8] outline-none" />
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-sm font-medium text-gray-700">Quel est votre objectif principal ?</label>
+            <select value={draft.settings.goal} onChange={(e) => updateDraft('settings', 'goal', e.target.value)} className="w-full max-w-md p-2 border border-gray-300 rounded focus:border-[#1a73e8] outline-none">
+              <option value="SALES">Ventes</option>
+              <option value="LEADS">Prospects</option>
+              <option value="TRAFFIC">Trafic vers le site Web</option>
+              <option value="BRAND">Audience et notoriété de la marque</option>
+            </select>
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-sm font-medium text-gray-700">Sélectionnez un type de campagne</label>
+            <div className="grid grid-cols-2 gap-3 max-w-2xl">
+              <label className={`border p-4 rounded-lg cursor-pointer flex items-start gap-3 transition-colors ${draft.settings.type === 'SEARCH' ? 'border-[#1a73e8] bg-[#e8f0fe]' : 'border-gray-200 hover:bg-gray-50'}`}>
+                 <input type="radio" name="gtype" checked={draft.settings.type === 'SEARCH'} onChange={() => updateDraft('settings', 'type', 'SEARCH')} className="mt-1" />
+                 <div><div className="font-medium text-gray-900">Réseau de Recherche</div><div className="text-xs text-gray-500 mt-1">Générez des ventes ou des prospects avec des annonces textuelles dans les résultats de recherche.</div></div>
+              </label>
+              <label className={`border p-4 rounded-lg cursor-pointer flex items-start gap-3 transition-colors ${draft.settings.type === 'PMAX' ? 'border-[#1a73e8] bg-[#e8f0fe]' : 'border-gray-200 hover:bg-gray-50'}`}>
+                 <input type="radio" name="gtype" checked={draft.settings.type === 'PMAX'} onChange={() => updateDraft('settings', 'type', 'PMAX')} className="mt-1" />
+                 <div><div className="font-medium text-gray-900">Performance Max</div><div className="text-xs text-gray-500 mt-1">Touchez des audiences sur l'ensemble du réseau Google avec une seule campagne.</div></div>
+              </label>
+              <label className={`border p-4 rounded-lg cursor-pointer flex items-start gap-3 transition-colors ${draft.settings.type === 'DISPLAY' ? 'border-[#1a73e8] bg-[#e8f0fe]' : 'border-gray-200 hover:bg-gray-50'}`}>
+                 <input type="radio" name="gtype" checked={draft.settings.type === 'DISPLAY'} onChange={() => updateDraft('settings', 'type', 'DISPLAY')} className="mt-1" />
+                 <div><div className="font-medium text-gray-900">Display</div><div className="text-xs text-gray-500 mt-1">Touchez les clients sur des millions de sites et d'applications avec des annonces visuelles.</div></div>
+              </label>
+              <label className={`border p-4 rounded-lg cursor-pointer flex items-start gap-3 transition-colors ${draft.settings.type === 'VIDEO' ? 'border-[#1a73e8] bg-[#e8f0fe]' : 'border-gray-200 hover:bg-gray-50'}`}>
+                 <input type="radio" name="gtype" checked={draft.settings.type === 'VIDEO'} onChange={() => updateDraft('settings', 'type', 'VIDEO')} className="mt-1" />
+                 <div><div className="font-medium text-gray-900">Vidéo</div><div className="text-xs text-gray-500 mt-1">Touchez les spectateurs sur YouTube et sur le Web.</div></div>
+              </label>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <hr className="border-gray-200" />
+
+      <section>
+        <h2 className="text-xl font-medium mb-4 text-gray-900">Enchères et budget</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-1">
+            <label className="text-sm font-medium text-gray-700">Sur quelle statistique souhaitez-vous vous concentrer ?</label>
+            <select value={draft.settings.bidding} onChange={(e) => updateDraft('settings', 'bidding', e.target.value)} className="w-full p-2 border border-gray-300 rounded focus:border-[#1a73e8] outline-none">
+              <option value="CONVERSIONS">Conversions (Maximiser les conversions / CPA cible)</option>
+              <option value="ROAS">Valeur de conversion (Maximiser la valeur / ROAS cible)</option>
+              <option value="CLICKS">Clics (Maximiser les clics)</option>
+              <option value="IMPRESSIONS">Taux d'impressions cible</option>
+            </select>
+          </div>
+          <div className="space-y-1">
+            <label className="text-sm font-medium text-gray-700">Définissez votre budget quotidien moyen (€)</label>
+            <input type="number" value={draft.settings.budget} onChange={(e) => updateDraft('settings', 'budget', e.target.value)} className="w-full p-2 border border-gray-300 rounded focus:border-[#1a73e8] outline-none" />
+          </div>
+        </div>
+      </section>
+
+      <hr className="border-gray-200" />
+
+      <section>
+        <h2 className="text-xl font-medium mb-4 text-gray-900">Ciblage (Campagne)</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-1">
+            <label className="text-sm font-medium text-gray-700">Zones géographiques</label>
+            <input type="text" value={draft.settings.location} onChange={(e) => updateDraft('settings', 'location', e.target.value)} placeholder="Ex: Belgique, Paris, Code postal..." className="w-full p-2 border border-gray-300 rounded focus:border-[#1a73e8] outline-none" />
+          </div>
+          <div className="space-y-1">
+            <label className="text-sm font-medium text-gray-700">Langues de vos clients</label>
+            <input type="text" value={draft.settings.language} onChange={(e) => updateDraft('settings', 'language', e.target.value)} className="w-full p-2 border border-gray-300 rounded focus:border-[#1a73e8] outline-none" />
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function GAdsAdGroupForm({ draft, updateDraft }) {
+  return (
+    <div className="space-y-8">
+      <section>
+        <h2 className="text-xl font-medium mb-4 text-gray-900">Configurer le groupe d'annonces</h2>
+        <div className="space-y-1 max-w-md mb-8">
+          <label className="text-sm font-medium text-gray-700">Nom du groupe d'annonces</label>
+          <input type="text" value={draft.adGroup.name} onChange={(e) => updateDraft('adGroup', 'name', e.target.value)} className="w-full p-2 border border-gray-300 rounded focus:border-[#1a73e8] outline-none" />
+        </div>
+
+        {draft.settings.type === 'SEARCH' ? (
+          <div className="space-y-3">
+            <h3 className="text-lg font-medium text-gray-900">Saisissez des mots-clés</h3>
+            <p className="text-sm text-gray-600">Les mots clés sont des mots ou des expressions qui permettent de faire correspondre vos annonces avec les requêtes des utilisateurs.</p>
+            <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg mb-4 text-sm text-blue-900">
+              <span className="font-semibold block mb-2">💡 Astuce : Types de correspondance</span>
+              <ul className="list-disc list-inside space-y-1 ml-2">
+                <li><span className="font-mono bg-white px-1">mot clé</span> = <strong>Requête large</strong> (Touche un public large, inclut les synonymes)</li>
+                <li><span className="font-mono bg-white px-1">"mot clé"</span> = <strong>Expression exacte</strong> (La requête doit inclure le sens du mot-clé)</li>
+                <li><span className="font-mono bg-white px-1">[mot clé]</span> = <strong>Mot-clé exact</strong> (La requête doit correspondre exactement ou avoir la même intention)</li>
+              </ul>
+            </div>
+            <textarea 
+              value={draft.adGroup.keywords} 
+              onChange={(e) => updateDraft('adGroup', 'keywords', e.target.value)} 
+              className="w-full h-64 p-4 border border-gray-300 rounded focus:border-[#1a73e8] outline-none font-mono text-sm leading-relaxed"
+              placeholder="Exemple:&#10;formation marketing digital&#10;&quot;cours google ads&quot;&#10;[ecole de marketing]"
+            />
+          </div>
+        ) : (
+          <div className="p-6 bg-gray-50 border border-gray-200 rounded-lg text-center">
+            <Users size={32} className="text-gray-400 mx-auto mb-3" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Signaux d'audience (Display / PMax)</h3>
+            <p className="text-sm text-gray-600 max-w-lg mx-auto">
+              Pour les campagnes Performance Max ou Display, Google s'appuie sur le Machine Learning. Vous n'avez pas besoin de saisir de mots-clés stricts ici, vous fournirez des signaux d'audience (listes de clients, intérêts) pour guider l'algorithme.
+            </p>
+          </div>
+        )}
+      </section>
+    </div>
+  );
+}
+
+function GAdsAdForm({ draft, updateDraft, updateArrayField }) {
+  const isSearch = draft.settings.type === 'SEARCH';
+
+  const handleSitelinkChange = (index, field, value) => {
+    const newSitelinks = [...draft.ad.sitelinks];
+    newSitelinks[index] = { ...newSitelinks[index], [field]: value };
+    updateDraft('ad', 'sitelinks', newSitelinks);
+  };
+
+  const handleAssetUpload = (e, type) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const newAssets = [...draft.ad[type], reader.result];
+        updateDraft('ad', type, newAssets);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeAsset = (index, type) => {
+    const newAssets = draft.ad[type].filter((_, i) => i !== index);
+    updateDraft('ad', type, newAssets);
+  };
+
+  const getDisplayUrl = (url) => {
+    try {
+      if (!url) return 'EXEMPLE.COM';
+      const urlObj = new URL(url.startsWith('http') ? url : `https://${url}`);
+      return urlObj.hostname.replace('www.', '').toUpperCase();
+    } catch (e) {
+      return 'EXEMPLE.COM';
+    }
+  };
+
+  return (
+    <div className="flex flex-col lg:flex-row gap-8 items-start">
+      <div className="flex-1 space-y-6 w-full">
+        <h2 className="text-xl font-medium text-gray-900 mb-2">Créer une annonce {isSearch ? 'textuelle responsive' : 'Performance Max / Display'}</h2>
+
+        <div className="space-y-4 bg-white p-5 border border-gray-200 rounded shadow-sm">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">URL finale</label>
+            <input type="url" value={draft.ad.finalUrl} onChange={(e) => updateDraft('ad', 'finalUrl', e.target.value)} placeholder="https://www.example.com" className="w-full p-2 border border-gray-300 rounded focus:border-[#1a73e8] outline-none" />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Chemin à afficher</label>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-500 bg-gray-100 px-3 py-2 rounded border border-gray-200 truncate max-w-[150px]">{draft.ad.finalUrl ? new URL(draft.ad.finalUrl.startsWith('http') ? draft.ad.finalUrl : `https://${draft.ad.finalUrl}`).hostname : 'example.com'}</span>
+              <span className="text-gray-400">/</span>
+              <input type="text" value={draft.ad.path1} onChange={(e) => updateDraft('ad', 'path1', e.target.value)} placeholder="Promo" maxLength="15" className="w-24 p-2 border border-gray-300 rounded focus:border-[#1a73e8] outline-none" />
+              <span className="text-gray-400">/</span>
+              <input type="text" value={draft.ad.path2} onChange={(e) => updateDraft('ad', 'path2', e.target.value)} placeholder="Hiver" maxLength="15" className="w-24 p-2 border border-gray-300 rounded focus:border-[#1a73e8] outline-none" />
+            </div>
+          </div>
+        </div>
+
+        {!isSearch && (
+          <div className="bg-white p-5 border border-gray-200 rounded shadow-sm space-y-5">
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <h3 className="font-medium text-gray-900">Images <span className="text-gray-500 font-normal text-xs">(Jusqu'à 15)</span></h3>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                {draft.ad.images.map((img, i) => (
+                  <div key={i} className="relative w-20 h-20 border rounded group">
+                    <img src={img} className="w-full h-full object-cover rounded" alt={`Image ${i}`} />
+                    <button onClick={() => removeAsset(i, 'images')} className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow"><Trash size={12}/></button>
+                  </div>
+                ))}
+                {draft.ad.images.length < 15 && (
+                  <label className="w-20 h-20 border-2 border-dashed border-gray-300 rounded flex flex-col items-center justify-center cursor-pointer hover:bg-blue-50 hover:border-blue-300 text-gray-400 hover:text-blue-500 transition-colors">
+                    <input type="file" accept="image/*" className="hidden" onChange={(e) => handleAssetUpload(e, 'images')} />
+                    <Plus size={20} />
+                    <span className="text-[10px] mt-1">Image</span>
+                  </label>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <h3 className="font-medium text-gray-900">Logos <span className="text-gray-500 font-normal text-xs">(Jusqu'à 5)</span></h3>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                {draft.ad.logos.map((logo, i) => (
+                  <div key={i} className="relative w-16 h-16 border rounded group">
+                    <img src={logo} className="w-full h-full object-contain rounded p-1" alt={`Logo ${i}`} />
+                    <button onClick={() => removeAsset(i, 'logos')} className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow"><Trash size={12}/></button>
+                  </div>
+                ))}
+                {draft.ad.logos.length < 5 && (
+                  <label className="w-16 h-16 border-2 border-dashed border-gray-300 rounded flex flex-col items-center justify-center cursor-pointer hover:bg-blue-50 hover:border-blue-300 text-gray-400 hover:text-blue-500 transition-colors">
+                    <input type="file" accept="image/*" className="hidden" onChange={(e) => handleAssetUpload(e, 'logos')} />
+                    <Plus size={16} />
+                    <span className="text-[10px] mt-1">Logo</span>
+                  </label>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="bg-white p-5 border border-gray-200 rounded shadow-sm space-y-3">
+          <div className="flex justify-between items-center mb-3">
+            <div>
+              <h3 className="font-medium text-gray-900">Titres</h3>
+              <p className="text-xs text-gray-500">Ajoutez jusqu'à 15 titres. Google les combinera automatiquement. (30 caractères max)</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {draft.ad.headlines.map((hl, i) => (
+              <div key={`hl-${i}`} className="relative">
+                <input 
+                  type="text" 
+                  value={hl} 
+                  onChange={(e) => updateArrayField('ad', 'headlines', i, e.target.value)} 
+                  placeholder={`Titre ${i + 1}`} 
+                  maxLength="30" 
+                  className={`w-full p-2 pr-12 border rounded focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8] outline-none text-sm transition-colors ${hl.length >= 30 ? 'border-amber-400 bg-amber-50' : 'border-gray-300'}`} 
+                />
+                <span className={`absolute right-3 top-2.5 text-xs font-medium ${hl.length >= 30 ? 'text-amber-600' : 'text-gray-400'}`}>{hl.length}/30</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-white p-5 border border-gray-200 rounded shadow-sm space-y-3">
+          <div className="flex justify-between items-center mb-3">
+            <div>
+              <h3 className="font-medium text-gray-900">Descriptions</h3>
+              <p className="text-xs text-gray-500">Ajoutez jusqu'à 4 descriptions. (90 caractères max)</p>
+            </div>
+          </div>
+          <div className="space-y-3">
+            {draft.ad.descriptions.map((desc, i) => (
+              <div key={`desc-${i}`} className="relative">
+                <textarea 
+                  value={desc} 
+                  onChange={(e) => updateArrayField('ad', 'descriptions', i, e.target.value)} 
+                  placeholder={`Description ${i + 1}`} 
+                  maxLength="90" 
+                  rows="2" 
+                  className={`w-full p-2 border rounded focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8] outline-none resize-none text-sm transition-colors ${desc.length >= 90 ? 'border-amber-400 bg-amber-50' : 'border-gray-300'}`} 
+                />
+                <span className={`absolute right-2 bottom-2 text-xs font-medium bg-white/80 px-1 rounded ${desc.length >= 90 ? 'text-amber-600' : 'text-gray-400'}`}>{desc.length}/90</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-white p-5 border border-gray-200 rounded shadow-sm space-y-4">
+          <div className="mb-2">
+            <h3 className="font-medium text-gray-900">Composants : Liens annexes (Sitelinks)</h3>
+            <p className="text-xs text-gray-500">Ajoutez des liens vers des pages spécifiques de votre site pour étendre votre annonce.</p>
+          </div>
+          <div className="space-y-3">
+            {draft.ad.sitelinks.map((sl, i) => (
+              <div key={`sl-${i}`} className="flex flex-col sm:flex-row gap-2">
+                 <div className="flex-1 relative">
+                   <input type="text" placeholder={`Texte du lien ${i+1}`} value={sl.text} onChange={(e) => handleSitelinkChange(i, 'text', e.target.value)} maxLength="25" className="w-full p-2 text-sm border border-gray-300 rounded focus:border-[#1a73e8] outline-none" />
+                   <span className="absolute right-2 top-2.5 text-[10px] text-gray-400">{sl.text.length}/25</span>
+                 </div>
+                 <div className="flex-1">
+                   <input type="url" placeholder={`URL finale ${i+1}`} value={sl.url} onChange={(e) => handleSitelinkChange(i, 'url', e.target.value)} className="w-full p-2 text-sm border border-gray-300 rounded focus:border-[#1a73e8] outline-none" />
+                 </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+      </div>
+
+      <div className="w-full lg:w-[450px] bg-white rounded shadow-sm border border-gray-200 sticky top-0 shrink-0 hidden lg:block">
+        <div className="p-3 border-b border-gray-200 bg-gray-50 font-medium text-sm text-gray-700 flex items-center justify-between">
+          <span>Aperçu de l'annonce</span>
+          <span className="text-xs bg-white border px-2 py-0.5 rounded text-gray-500 flex items-center gap-1"><Smartphone size={12}/> Mobile</span>
+        </div>
+
+        <div className="p-6 bg-white min-h-[300px]">
+
+          <div className="font-sans mb-8">
+            <div className="flex items-start gap-3 mb-2">
+              <div className="w-7 h-7 bg-gray-100 border border-gray-200 rounded-full flex items-center justify-center overflow-hidden shrink-0 mt-0.5">
+                {draft.ad.logos[0] ? <img src={draft.ad.logos[0]} className="w-full h-full object-contain" alt="Logo" /> : <Globe size={16} className="text-gray-500"/>}
+              </div>
+              <div className="flex flex-col leading-tight">
+                <span className="text-[13px] text-gray-900 font-bold mb-0.5">Sponsorisé</span>
+                <div className="text-[12px] text-gray-700 flex items-center flex-wrap">
+                  <span className="truncate max-w-[200px] font-medium">{draft.ad.finalUrl ? new URL(draft.ad.finalUrl.startsWith('http') ? draft.ad.finalUrl : `https://${draft.ad.finalUrl}`).hostname : 'www.example.com'}</span>
+                  {(draft.ad.path1 || draft.ad.path2) && (
+                    <span className="text-gray-500 ml-1">
+                      › {draft.ad.path1} {draft.ad.path2 ? `› ${draft.ad.path2}` : ''}
+                    </span>
+                  )}
+                </div>
+              </div>
+              <MoreVertical size={16} className="text-gray-400 ml-auto" />
+            </div>
+
+            <div className="text-[20px] text-[#1a0dab] font-normal leading-[1.3] mb-1.5 hover:underline cursor-pointer break-words">
+              {draft.ad.headlines.filter(h => h.trim() !== '').slice(0, 3).join(' | ') || 'Titre de l\'annonce 1 | Titre de l\'annonce 2'}
+            </div>
+
+            <div className="text-[14px] text-[#4d5156] leading-[1.58] break-words">
+              {draft.ad.descriptions.filter(d => d.trim() !== '').slice(0, 2).join(' - ') || 'Rédigez une description accrocheuse pour inciter les utilisateurs à cliquer sur votre annonce.'}
+            </div>
+
+            {draft.ad.sitelinks.some(sl => sl.text.trim() !== '') && (
+              <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2">
+                {draft.ad.sitelinks.filter(sl => sl.text.trim() !== '').map((sl, i) => (
+                  <div key={i} className="text-[#1a0dab] text-[14px] hover:underline cursor-pointer truncate">
+                    {sl.text}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {(!isSearch || draft.ad.images.length > 0) && (
+            <div className="mt-10 pt-6 border-t border-gray-200">
+              <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Aperçu Réseau Display / PMax</h4>
+              <div className="border border-gray-200 rounded-lg overflow-hidden shadow-sm relative">
+                 <span className="absolute top-2 right-2 bg-white/90 backdrop-blur px-1.5 rounded text-[10px] border border-gray-200 font-medium z-10 text-gray-600">Ad • ⓘ</span>
+                 <div className="w-full aspect-[1.91/1] bg-gray-100 flex items-center justify-center border-b border-gray-200 relative overflow-hidden">
+                   {draft.ad.images[0] ? (
+                     <img src={draft.ad.images[0]} className="w-full h-full object-cover" alt="Image" />
+                   ) : (
+                     <ImageIcon className="text-gray-300" size={48} />
+                   )}
+                 </div>
+                 <div className="p-4 bg-white flex items-start gap-3">
+                   <div className="w-10 h-10 border border-gray-100 rounded bg-gray-50 flex items-center justify-center shrink-0">
+                     {draft.ad.logos[0] ? <img src={draft.ad.logos[0]} className="w-full h-full object-contain p-0.5" alt="Logo" /> : <Globe size={20} className="text-gray-400"/>}
+                   </div>
+                   <div className="flex-1">
+                     <div className="font-medium text-[15px] text-gray-900 line-clamp-2 leading-tight mb-1">{draft.ad.headlines.find(h => h.trim()) || 'Titre de votre annonce'}</div>
+                     <div className="text-[13px] text-gray-600 line-clamp-2 leading-snug">{draft.ad.descriptions.find(d => d.trim()) || 'Votre description apparaitra ici pour convaincre l\'utilisateur.'}</div>
+                     <button className="mt-3 w-full py-2 border border-[#1a73e8] text-[#1a73e8] rounded-md font-medium text-sm hover:bg-blue-50 transition-colors">Ouvrir</button>
+                   </div>
+                 </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function GAdsNavItem({ icon, active, onClick, title }) {
+  return (
+    <div onClick={onClick} className={`p-3 rounded-full cursor-pointer flex items-center justify-center transition-colors ${active ? 'bg-[#e8f0fe] text-[#1a73e8]' : 'hover:bg-white/10 text-gray-400 hover:text-white'}`} title={title}>
+      {icon}
+    </div>
+  );
+}
+
+// ==========================================
+// SIMULATEUR META ADS
+// ==========================================
+function MetaAdsSimulator({ onExit }) {
+  const [view, setView] = useState('dashboard');
+  const [isObjectiveModalOpen, setIsObjectiveModalOpen] = useState(false);
+  const [selectedObjective, setSelectedObjective] = useState('TRAFFIC');
+
+  const [campaigns, setCampaigns] = useState([
+    { id: 1, name: 'Campagne de Notoriété - Lancement', status: 'active', delivery: 'Actif', budget: '20,00 € / jour', amountSpent: '145,50 €', results: '12 450', reach: '45 200', impressions: '68 900', cpc: '0,12 €', landingPageViews: '850', postReactions: '1 245', postComments: '84', postSaves: '120', postShares: '45', engagementRate: '4,5 %', instantExpOpen: '320', instantExpStart: '150', trafficGoogle: '45', purchases: '2', objective: 'AWARENESS' },
+    { id: 2, name: 'Trafic vers le site web - Retargeting', status: 'paused', delivery: 'Désactivé', budget: '15,00 € / jour', amountSpent: '342,20 €', results: '342', reach: '8 500', impressions: '12 100', cpc: '0,85 €', landingPageViews: '320', postReactions: '45', postComments: '12', postSaves: '5', postShares: '2', engagementRate: '1,2 %', instantExpOpen: '-', instantExpStart: '-', trafficGoogle: '12', purchases: '15', objective: 'TRAFFIC' }
+  ]);
+
+  const [draft, setDraft] = useState(getInitialDraft('TRAFFIC'));
+  const [currentStep, setCurrentStep] = useState('campaign');
+
+  function getInitialDraft(objective = 'TRAFFIC') {
+    return {
       campaign: { name: 'Nouvelle campagne', objective: objective, specialCategory: 'NONE' },
       adSet: { 
-        name: 'Nouvel ensemble de publicités', budgetType: 'DAILY', budget: 20, 
+        name: 'Nouvel ensemble de publicités', 
+        budgetType: 'DAILY', budget: 20, 
         locations: 'Belgique', ageMin: '18', ageMax: '65+', detailedTargeting: '',
         placements: 'ADVANTAGE', manualPlacements: { facebook: true, instagram: true, audienceNetwork: true, messenger: true } 
       },
@@ -64,678 +798,1096 @@
           { id: 2, image: '', headline: 'Titre de la carte 2', url: '' }
         ]
       }
+    };
+  }
+
+  const handleOpenCreateModal = () => {
+    setSelectedObjective('TRAFFIC');
+    setIsObjectiveModalOpen(true);
+  };
+
+  const startCreationFlow = () => {
+    setDraft(getInitialDraft(selectedObjective));
+    setCurrentStep('campaign');
+    setIsObjectiveModalOpen(false);
+    setView('create');
+  };
+
+  const handleEdit = (campaignToEdit) => {
+    setDraft({
+      ...getInitialDraft(campaignToEdit.objective),
+      campaign: { ...getInitialDraft(campaignToEdit.objective).campaign, name: campaignToEdit.name, objective: campaignToEdit.objective }
     });
+    setCurrentStep('campaign');
+    setView('create');
+  };
 
-    const defaultGAdsDraft = () => {
-      const initialHeadlines = Array(15).fill('');
-      initialHeadlines[0] = 'Formation Marketing Digital'; initialHeadlines[1] = 'Devenez Expert Google Ads'; initialHeadlines[2] = 'Inscriptions Ouvertes';
-      const initialDescriptions = Array(4).fill('');
-      initialDescriptions[0] = 'Inscrivez-vous dès maintenant à notre formation complète en marketing digital.'; initialDescriptions[1] = 'Maîtrisez le Media Buying, Google Ads et Meta Ads avec des formateurs experts.';
-      return {
-        settings: { name: 'Nouvelle campagne', goal: 'SALES', type: 'SEARCH', budget: 20, bidding: 'CONVERSIONS', location: 'Belgique', language: 'Français' },
-        adGroup: { name: 'Groupe d\'annonces 1', keywords: 'formation marketing digital\ncours google ads\n[ecole de marketing]\n"apprendre le media buying"' },
-        ad: { 
-          finalUrl: 'https://www.efp.be/formations', path1: 'marketing', path2: 'digital', 
-          headlines: initialHeadlines, descriptions: initialDescriptions, images: [], logos: [],
-          sitelinks: [{ text: 'Toutes nos formations', url: 'https://www.efp.be/toutes-formations' }, { text: 'Inscriptions 2024', url: 'https://www.efp.be/inscription' }, { text: '', url: '' }, { text: '', url: '' }]
-        }
+  const handleDuplicate = (campaignToDuplicate) => {
+    const newCampaign = { 
+      ...campaignToDuplicate, 
+      id: Date.now(), 
+      name: `${campaignToDuplicate.name} - Copie`,
+      status: 'paused', 
+      delivery: 'Brouillon',
+      amountSpent: '0,00 €', results: '-', reach: '-', impressions: '-', purchases: '-'
+    };
+    setCampaigns([newCampaign, ...campaigns]);
+  };
+
+  const handlePublish = () => {
+    const newCampaign = {
+      id: Date.now(), name: draft.campaign.name, status: 'active', delivery: 'En cours d\'examen',
+      budget: `${draft.adSet.budget},00 € / ${draft.adSet.budgetType === 'DAILY' ? 'jour' : 'global'}`,
+      amountSpent: '0,00 €', results: '-', reach: '-', impressions: '-', cpc: '-', landingPageViews: '-', postReactions: '-', postComments: '-', postSaves: '-', postShares: '-', engagementRate: '-', instantExpOpen: '-', instantExpStart: '-', trafficGoogle: '-', purchases: '-', objective: draft.campaign.objective
+    };
+    setCampaigns([newCampaign, ...campaigns]);
+    setView('dashboard');
+  };
+
+  const handleToggleStatus = (id) => {
+    setCampaigns(campaigns.map(camp => {
+      if (camp.id === id) {
+        const isNowActive = camp.status !== 'active';
+        return { ...camp, status: isNowActive ? 'active' : 'paused', delivery: isNowActive ? 'Actif' : 'Désactivé' };
+      }
+      return camp;
+    }));
+  };
+
+  const updateDraft = (level, field, value) => {
+    setDraft(prev => ({ ...prev, [level]: { ...prev[level], [field]: value } }));
+  };
+
+  return (
+    <div className="flex h-screen bg-gray-100 font-sans text-gray-800 overflow-hidden w-full">
+      <div className="w-16 bg-white border-r border-gray-200 flex flex-col items-center py-4 z-20 shadow-sm shrink-0">
+        <button onClick={onExit} className="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-600 mb-8 transition-colors" title="Retour au portail">
+          <ArrowLeft size={20} />
+        </button>
+        <nav className="flex flex-col gap-6 flex-1 w-full">
+          <MetaNavItem icon={<Layout size={20} />} active={view === 'dashboard'} onClick={() => setView('dashboard')} title="Accueil" />
+          <MetaNavItem icon={<Megaphone size={20} />} active={view === 'create'} title="Campagnes" />
+          <MetaNavItem icon={<Users size={20} />} title="Audiences" />
+          <MetaNavItem icon={<Folder size={20} />} title="Bibliothèque" />
+          <MetaNavItem icon={<BarChart2 size={20} />} title="Rapports" />
+        </nav>
+      </div>
+
+      <div className="flex-1 flex flex-col h-full overflow-hidden relative">
+        {view === 'dashboard' ? (
+          <MetaDashboard 
+            campaigns={campaigns} 
+            onCreateNew={handleOpenCreateModal} 
+            onToggleStatus={handleToggleStatus} 
+            onEdit={handleEdit}
+            onDuplicate={handleDuplicate}
+            isObjectiveModalOpen={isObjectiveModalOpen}
+            setIsObjectiveModalOpen={setIsObjectiveModalOpen}
+            selectedObjective={selectedObjective}
+            setSelectedObjective={setSelectedObjective}
+            startCreationFlow={startCreationFlow}
+          />
+        ) : (
+          <CreationFlow draft={draft} updateDraft={updateDraft} currentStep={currentStep} setCurrentStep={setCurrentStep} onClose={() => setView('dashboard')} onPublish={handlePublish} />
+        )}
+      </div>
+    </div>
+  );
+}
+
+function MetaDashboard({ 
+  campaigns, onCreateNew, onToggleStatus, onEdit, onDuplicate,
+  isObjectiveModalOpen, setIsObjectiveModalOpen, selectedObjective, setSelectedObjective, startCreationFlow
+}) {
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const [dateRange, setDateRange] = useState('Ce mois-ci : 1 mars - 31 mars');
+
+  const dateOptions = ["Aujourd'hui", "Hier", "7 derniers jours", "14 derniers jours", "Ce mois-ci : 1 mars - 31 mars", "Mois dernier : 1 fév. - 28 fév.", "Cette année", "Durée maximale"];
+
+  return (
+    <div className="flex-1 flex flex-col h-full relative">
+      {/* MODAL D'OBJECTIFS */}
+      {isObjectiveModalOpen && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl flex flex-col overflow-hidden max-h-[90vh]">
+            <div className="p-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+              <h2 className="text-xl font-semibold text-gray-900">Choisir un objectif de campagne</h2>
+              <button onClick={() => setIsObjectiveModalOpen(false)} className="text-gray-500 hover:bg-gray-200 p-2 rounded-full"><X size={20}/></button>
+            </div>
+            <div className="flex flex-1 overflow-hidden">
+              <div className="w-2/3 p-8 overflow-y-auto">
+                <p className="text-gray-600 mb-6">Sélectionnez l'objectif qui correspond le mieux à ce que vous souhaitez accomplir avec cette campagne.</p>
+                <div className="grid grid-cols-2 gap-4">
+                  {[
+                    { id: 'AWARENESS', icon: <Megaphone size={24}/>, title: 'Notoriété', desc: 'Montrez vos publicités aux personnes les plus susceptibles de s\'en souvenir.' },
+                    { id: 'TRAFFIC', icon: <MousePointer size={24}/>, title: 'Trafic', desc: 'Renvoyez les personnes vers une destination (site web, app).' },
+                    { id: 'ENGAGEMENT', icon: <MessageSquare size={24}/>, title: 'Interactions', desc: 'Obtenez plus de messages, de vues de vidéos, ou d\'interactions.' },
+                    { id: 'LEADS', icon: <Filter size={24}/>, title: 'Prospects', desc: 'Générez des prospects pour votre entreprise ou marque.' },
+                    { id: 'APP_PROMOTION', icon: <Smartphone size={24}/>, title: 'Promotion de l\'application', desc: 'Trouvez de nouvelles personnes pour installer votre application.' },
+                    { id: 'SALES', icon: <CreditCard size={24}/>, title: 'Ventes', desc: 'Trouvez des personnes susceptibles d\'acheter votre produit.' }
+                  ].map(obj => (
+                    <div 
+                      key={obj.id} 
+                      onClick={() => setSelectedObjective(obj.id)}
+                      className={`border-2 p-4 rounded-xl cursor-pointer transition-all hover:shadow-md ${selectedObjective === obj.id ? 'border-blue-600 bg-blue-50/50' : 'border-gray-200 hover:border-blue-300'}`}
+                    >
+                      <div className={`mb-3 ${selectedObjective === obj.id ? 'text-blue-600' : 'text-gray-700'}`}>{obj.icon}</div>
+                      <h3 className="font-semibold text-gray-900 mb-1">{obj.title}</h3>
+                      <p className="text-xs text-gray-500 leading-snug">{obj.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="w-1/3 bg-gray-50 p-8 border-l border-gray-200 flex flex-col">
+                <h3 className="font-medium text-gray-900 mb-4">Votre campagne est configurée pour :</h3>
+                <div className="bg-white p-4 border border-gray-200 rounded-lg shadow-sm">
+                  <div className="text-blue-600 mb-2">
+                    {selectedObjective === 'AWARENESS' && <Megaphone size={28}/>}
+                    {selectedObjective === 'TRAFFIC' && <MousePointer size={28}/>}
+                    {selectedObjective === 'ENGAGEMENT' && <MessageSquare size={28}/>}
+                    {selectedObjective === 'LEADS' && <Filter size={28}/>}
+                    {selectedObjective === 'APP_PROMOTION' && <Smartphone size={28}/>}
+                    {selectedObjective === 'SALES' && <CreditCard size={28}/>}
+                  </div>
+                  <h4 className="font-bold text-gray-900 mb-1">
+                    {selectedObjective === 'AWARENESS' && 'Notoriété'}
+                    {selectedObjective === 'TRAFFIC' && 'Trafic'}
+                    {selectedObjective === 'ENGAGEMENT' && 'Interactions'}
+                    {selectedObjective === 'LEADS' && 'Prospects'}
+                    {selectedObjective === 'APP_PROMOTION' && 'Promotion de l\'application'}
+                    {selectedObjective === 'SALES' && 'Ventes'}
+                  </h4>
+                  <p className="text-xs text-gray-500">Excellente option pour atteindre vos objectifs commerciaux.</p>
+                </div>
+                <div className="mt-auto">
+                  <button onClick={startCreationFlow} className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-sm transition-colors">
+                    Continuer
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <header className="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center shadow-sm z-10 shrink-0">
+        <div>
+          <h1 className="text-xl font-semibold text-gray-900">Campagnes</h1>
+          <p className="text-sm text-gray-500 flex items-center gap-2 mt-1">
+             Compte : Formation Marketing (123456789)
+          </p>
+        </div>
+      </header>
+
+      <div className="bg-white border-b border-gray-200 px-6 py-3 flex items-center gap-4 shrink-0">
+        <button onClick={onCreateNew} className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-md text-sm transition-colors"><Plus size={16} /> Créer</button>
+        <div className="h-6 w-px bg-gray-300 mx-2"></div>
+        <div className="flex gap-2 text-sm text-gray-600">
+          <span className="font-semibold text-blue-600 border-b-2 border-blue-600 pb-1 cursor-pointer">Campagnes</span>
+          <span className="hover:text-gray-900 cursor-pointer pb-1">Ensembles de publicités</span>
+          <span className="hover:text-gray-900 cursor-pointer pb-1">Publicités</span>
+        </div>
+
+        <div className="ml-auto flex items-center gap-3">
+          <div className="relative hidden lg:block">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input type="text" placeholder="Rechercher et filtrer" className="pl-9 pr-4 py-1.5 border border-gray-300 rounded-md text-sm w-48 focus:outline-none focus:ring-1 focus:ring-blue-500" />
+          </div>
+
+          <div className="relative">
+            <button onClick={() => setIsDatePickerOpen(!isDatePickerOpen)} className={`flex items-center gap-2 px-3 py-1.5 border rounded-md text-sm font-medium shadow-sm transition-colors ${isDatePickerOpen ? 'bg-blue-50 border-blue-300 text-blue-700' : 'border-gray-300 bg-white hover:bg-gray-50 text-gray-700'}`}>
+              <Calendar size={14} className={isDatePickerOpen ? "text-blue-600" : "text-gray-500"} />
+              {dateRange}
+              <ChevronDown size={14} className={isDatePickerOpen ? "text-blue-600" : "text-gray-500 ml-1"} />
+            </button>
+            {isDatePickerOpen && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setIsDatePickerOpen(false)}></div>
+                <div className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-xl border border-gray-200 z-50 py-1 overflow-hidden">
+                  {dateOptions.map((option, index) => (
+                    <div key={index} onClick={() => { setDateRange(option); setIsDatePickerOpen(false); }} className={`px-4 py-2.5 text-sm cursor-pointer transition-colors ${dateRange === option ? 'bg-blue-50 text-blue-700 font-semibold' : 'text-gray-700 hover:bg-gray-100'}`}>{option}</div>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-auto bg-gray-50 p-6">
+        <div className="bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left whitespace-nowrap">
+              <thead className="text-xs text-gray-500 bg-gray-50 border-b border-gray-200 uppercase">
+                <tr>
+                  <th className="px-4 py-3 w-12 sticky left-0 bg-gray-50 z-10"><input type="checkbox" className="rounded" /></th>
+                  <th className="px-4 py-3 w-16 sticky left-12 bg-gray-50 z-10">Dés.</th>
+                  <th className="px-4 py-3 font-medium sticky left-[112px] bg-gray-50 z-10 shadow-[1px_0_0_0_#e5e7eb]">Nom de la campagne</th>
+                  <th className="px-4 py-3 font-medium">Diffusion</th>
+                  <th className="px-4 py-3 font-medium text-right">Budget</th>
+                  <th className="px-4 py-3 font-medium text-right">Montant dépensé</th>
+                  <th className="px-4 py-3 font-medium text-right">Achats</th>
+                  <th className="px-4 py-3 font-medium text-right">Résultats</th>
+                  <th className="px-4 py-3 font-medium text-right">Couverture</th>
+                  <th className="px-4 py-3 font-medium text-right">Impressions</th>
+                  <th className="px-4 py-3 font-medium text-right">CPC (tous)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {campaigns.map((camp) => (
+                  <tr key={camp.id} className="border-b border-gray-100 hover:bg-gray-50 group h-14">
+                    <td className="px-4 py-2 sticky left-0 bg-white group-hover:bg-gray-50 z-10"><input type="checkbox" className="rounded text-blue-600" /></td>
+                    <td className="px-4 py-2 sticky left-12 bg-white group-hover:bg-gray-50 z-10">
+                      <div onClick={() => onToggleStatus(camp.id)} className={`w-8 h-4 rounded-full relative cursor-pointer ${camp.status === 'active' ? 'bg-blue-600' : 'bg-gray-300'}`}>
+                        <div className={`absolute top-0.5 w-3 h-3 rounded-full bg-white transition-all ${camp.status === 'active' ? 'left-4.5' : 'left-0.5'}`}></div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-2 font-medium text-blue-600 sticky left-[112px] bg-white group-hover:bg-gray-50 z-10 shadow-[1px_0_0_0_#e5e7eb] align-top pt-3">
+                      <div className="w-56 truncate cursor-pointer hover:underline" onClick={() => onEdit(camp)}>{camp.name}</div>
+                      <div className="text-[11px] text-gray-500 font-normal mt-1 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity absolute bg-gray-50 pr-2">
+                        <span onClick={() => onEdit(camp)} className="hover:text-gray-900 cursor-pointer flex items-center gap-0.5"><Edit size={10}/> Modifier</span>
+                        <span onClick={() => onDuplicate(camp)} className="hover:text-gray-900 cursor-pointer flex items-center gap-0.5"><Folder size={10}/> Dupliquer</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-2 text-gray-700">{camp.delivery}</td>
+                    <td className="px-4 py-3 text-right text-gray-700">{camp.budget}</td>
+                    <td className="px-4 py-3 text-right font-medium">{camp.amountSpent}</td>
+                    <td className="px-4 py-3 text-right font-medium text-green-600">{camp.purchases}</td>
+                    <td className="px-4 py-3 text-right font-medium">{camp.results}</td>
+                    <td className="px-4 py-3 text-right text-gray-700">{camp.reach}</td>
+                    <td className="px-4 py-3 text-right text-gray-700">{camp.impressions}</td>
+                    <td className="px-4 py-3 text-right text-gray-700">{camp.cpc}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CreationFlow({ draft, updateDraft, currentStep, setCurrentStep, onClose, onPublish }) {
+  const handleExport = () => {
+    let content = `=== ÉVALUATION : SIMULATION META ADS ===\nDate : ${new Date().toLocaleString('fr-FR')}\n\n`;
+    content += `--- 1. CAMPAGNE ---\nNom : ${draft.campaign.name}\nObjectif : ${draft.campaign.objective}\n\n`;
+    content += `--- 2. ENSEMBLE DE PUBLICITÉS ---\nNom : ${draft.adSet.name}\nBudget : ${draft.adSet.budget}€ (${draft.adSet.budgetType})\nLieux : ${draft.adSet.locations}\nÂge : ${draft.adSet.ageMin} à ${draft.adSet.ageMax}\nCiblage avancé : ${draft.adSet.detailedTargeting || 'Aucun'}\nPlacements : ${draft.adSet.placements}\n\n`;
+    content += `--- 3. PUBLICITÉ ---\nNom : ${draft.ad.name}\nPage Facebook : ${draft.ad.facebookPage}\nFormat : ${draft.ad.format}\nTexte principal : ${draft.ad.primaryText}\nCall to Action : ${draft.ad.callToAction}\n`;
+
+    if (draft.ad.format === 'CAROUSEL') {
+      content += `\n--- CARTES CARROUSEL ---\n`;
+      draft.ad.carouselCards.forEach((c, i) => {
+        content += `Carte ${i+1} : Titre="${c.headline}" | URL="${c.url}"\n`;
+      });
+    } else {
+      content += `Titre : ${draft.ad.headline}\nURL : ${draft.ad.url}\n`;
+    }
+    content += `Paramètres UTM : ${draft.ad.urlParameters}\nPixel Activé : ${draft.ad.pixelActive ? 'OUI' : 'NON'}`;
+
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `MetaAds_${draft.campaign.name.replace(/\s+/g, '_')}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  return (
+    <div className="flex-1 flex flex-col h-full bg-white absolute inset-0 z-30">
+      <header className="bg-white border-b border-gray-200 px-4 py-3 flex justify-between items-center shadow-sm shrink-0">
+        <div className="flex items-center gap-4">
+          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors"><X size={20} className="text-gray-500" /></button>
+          <div className="flex items-center gap-2 text-sm">
+            <span className="text-gray-500">Brouillon</span><ChevronRight size={14} className="text-gray-400" />
+            <span className="font-semibold text-gray-900">{draft.campaign.name}</span>
+          </div>
+        </div>
+        <div className="flex gap-3">
+          <button onClick={handleExport} className="px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-md text-sm hover:bg-gray-50 flex items-center gap-2">
+            <Download size={16} /> Exporter (.txt)
+          </button>
+          <button onClick={onPublish} className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md text-sm transition-colors shadow-sm">Publier</button>
+        </div>
+      </header>
+
+      <div className="flex flex-1 overflow-hidden">
+        <div className="w-64 bg-gray-50 border-r border-gray-200 overflow-y-auto p-4 hidden md:block shrink-0">
+          <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Structure</h3>
+          <div className="space-y-1">
+            <div className={`flex items-center gap-2 p-2 rounded-md cursor-pointer text-sm ${currentStep === 'campaign' ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-700 hover:bg-gray-200'}`} onClick={() => setCurrentStep('campaign')}>
+              <Folder size={16} className={currentStep === 'campaign' ? 'text-blue-600' : 'text-gray-400'} />
+              <span className="truncate">{draft.campaign.name}</span>
+            </div>
+            <div className="ml-4 border-l border-gray-300 pl-4 space-y-1">
+              <div className={`flex items-center gap-2 p-2 rounded-md cursor-pointer text-sm ${currentStep === 'adset' ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-700 hover:bg-gray-200'}`} onClick={() => setCurrentStep('adset')}>
+                <Layout size={16} className={currentStep === 'adset' ? 'text-blue-600' : 'text-gray-400'} />
+                <span className="truncate">{draft.adSet.name}</span>
+              </div>
+              <div className="ml-4 border-l border-gray-300 pl-4">
+                <div className={`flex items-center gap-2 p-2 rounded-md cursor-pointer text-sm ${currentStep === 'ad' ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-700 hover:bg-gray-200'}`} onClick={() => setCurrentStep('ad')}>
+                  <Megaphone size={16} className={currentStep === 'ad' ? 'text-blue-600' : 'text-gray-400'} />
+                  <span className="truncate">{draft.ad.name}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-y-auto bg-gray-100 p-6">
+          <div className={`mx-auto space-y-6 pb-20 ${currentStep === 'ad' ? 'max-w-6xl' : 'max-w-3xl'}`}>
+            {currentStep === 'campaign' && <CampaignForm draft={draft} updateDraft={updateDraft} />}
+            {currentStep === 'adset' && <AdSetForm draft={draft} updateDraft={updateDraft} />}
+            {currentStep === 'ad' && <AdForm draft={draft} updateDraft={updateDraft} />}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CampaignForm({ draft, updateDraft }) {
+  return (
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <h2 className="text-xl font-semibold mb-6">Détails de la campagne</h2>
+      <input type="text" value={draft.campaign.name} onChange={(e) => updateDraft('campaign', 'name', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-6" />
+      <div className="border-t border-gray-100 pt-6">
+        <h3 className="text-md font-medium mb-2">Objectif de la campagne</h3>
+        <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50" disabled value={draft.campaign.objective}>
+          <option value="AWARENESS">Notoriété</option><option value="TRAFFIC">Trafic</option><option value="ENGAGEMENT">Interaction</option><option value="LEADS">Prospects</option><option value="APP_PROMOTION">Promotion d'application</option><option value="SALES">Ventes</option>
+        </select>
+        <p className="text-xs text-gray-500 mt-2">L'objectif est défini lors de la création. Créez une nouvelle campagne pour le modifier.</p>
+      </div>
+    </div>
+  );
+}
+
+function AdSetForm({ draft, updateDraft }) {
+  return (
+    <div className="space-y-6">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h2 className="text-xl font-semibold mb-4">Ensemble de publicités</h2>
+        <input type="text" value={draft.adSet.name} onChange={(e) => updateDraft('adSet', 'name', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-6" />
+        <h3 className="text-md font-medium mb-2">Budget</h3>
+        <div className="flex gap-4">
+          <select value={draft.adSet.budgetType} onChange={(e) => updateDraft('adSet', 'budgetType', e.target.value)} className="flex-1 px-3 py-2 border border-gray-300 rounded-md">
+            <option value="DAILY">Quotidien</option><option value="LIFETIME">Global</option>
+          </select>
+          <input type="number" value={draft.adSet.budget} onChange={(e) => updateDraft('adSet', 'budget', e.target.value)} className="flex-1 px-3 py-2 border border-gray-300 rounded-md" />
+        </div>
+      </div>
+
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h3 className="text-md font-medium mb-4 flex items-center gap-2"><Users size={18} className="text-blue-600"/> Audience</h3>
+        <div className="space-y-5">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Lieux</label>
+            <div className="relative">
+              <MapPin size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input type="text" value={draft.adSet.locations} onChange={(e) => updateDraft('adSet', 'locations', e.target.value)} placeholder="Ex: Belgique, Paris..." className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none" />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Âge minimum</label>
+              <select value={draft.adSet.ageMin} onChange={(e) => updateDraft('adSet', 'ageMin', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md"><option value="18">18</option><option value="20">20</option><option value="25">25</option></select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Âge maximum</label>
+              <select value={draft.adSet.ageMax} onChange={(e) => updateDraft('adSet', 'ageMax', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md"><option value="65+">65+</option><option value="50">50</option><option value="40">40</option></select>
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Ciblage avancé (Intérêts, comportements)</label>
+            <div className="relative">
+              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input type="text" value={draft.adSet.detailedTargeting} onChange={(e) => updateDraft('adSet', 'detailedTargeting', e.target.value)} placeholder="Ex: Marketing digital, E-commerce..." className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h3 className="text-md font-medium mb-4">Placements</h3>
+        <div className="space-y-3">
+          <label className={`flex p-4 border rounded-lg cursor-pointer transition-colors ${draft.adSet.placements === 'ADVANTAGE' ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}`}>
+            <input type="radio" checked={draft.adSet.placements === 'ADVANTAGE'} onChange={() => updateDraft('adSet', 'placements', 'ADVANTAGE')} className="mt-1" />
+            <div className="ml-3"><span className="block font-medium">Placements Advantage+ (Recommandé)</span></div>
+          </label>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AdForm({ draft, updateDraft }) {
+  const [previewFormat, setPreviewFormat] = useState('feeds'); 
+  const [showSafeZones, setShowSafeZones] = useState(false);
+
+  const handleImageUpload = (e, placement) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => { updateDraft('ad', 'media', { ...draft.ad.media, [placement]: reader.result }); };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCarouselImageUpload = (e, index) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const newCards = [...draft.ad.carouselCards];
+        newCards[index].image = reader.result;
+        updateDraft('ad', 'carouselCards', newCards);
       };
-    };
-
-    const State = {
-      currentApp: 'hub', // 'hub', 'meta', 'ga4', 'googleads'
-      
-      meta: {
-        view: 'dashboard',
-        isObjectiveModalOpen: false,
-        selectedObjective: 'TRAFFIC',
-        previewFormat: 'feeds',
-        showSafeZones: false,
-        campaigns: [
-          { id: 1, name: 'Campagne de Notoriété - Lancement', status: 'active', delivery: 'Actif', budget: '20,00 € / jour', amountSpent: '145,50 €', results: '12 450', reach: '45 200', impressions: '68 900', cpc: '0,12 €', landingPageViews: '850', postReactions: '1 245', postComments: '84', postSaves: '120', postShares: '45', engagementRate: '4,5 %', instantExpOpen: '320', instantExpStart: '150', trafficGoogle: '45', purchases: '2', objective: 'AWARENESS' },
-          { id: 2, name: 'Trafic vers le site web - Retargeting', status: 'paused', delivery: 'Désactivé', budget: '15,00 € / jour', amountSpent: '342,20 €', results: '342', reach: '8 500', impressions: '12 100', cpc: '0,85 €', landingPageViews: '320', postReactions: '45', postComments: '12', postSaves: '5', postShares: '2', engagementRate: '1,2 %', instantExpOpen: '-', instantExpStart: '-', trafficGoogle: '12', purchases: '15', objective: 'TRAFFIC' }
-        ],
-        draft: defaultMetaDraft(),
-        currentStep: 'campaign'
-      },
-
-      ga4: {
-        activeMenu: 'acq-traffic',
-        primaryDimension: 'sourceMedium',
-        searchQuery: '',
-        homeKeyEvent: 'Purchase'
-      },
-
-      gads: {
-        view: 'dashboard',
-        campaigns: [
-          { id: 1, name: 'Search - Mots-clés Marque', type: 'Search', status: 'active', budget: '15,00 €/jour', clicks: '450', impressions: '1 200', ctr: '37,50 %', cpc: '0,45 €', cost: '202,50 €', conversions: '45' },
-          { id: 2, name: 'PMax - Lancement Produit', type: 'Performance Max', status: 'active', budget: '50,00 €/jour', clicks: '1 240', impressions: '45 000', ctr: '2,75 %', cpc: '0,85 €', cost: '1 054,00 €', conversions: '112' }
-        ],
-        draft: defaultGAdsDraft(),
-        currentStep: 'settings'
-      }
-    };
-
-    // ==========================================
-    // ACTIONS GLOBALES (MUTATIONS)
-    // ==========================================
-    const Actions = {
-      nav: (app) => { State.currentApp = app; Render(); },
-      
-      // --- META ACTIONS ---
-      metaSetView: (v) => { State.meta.view = v; Render(); },
-      metaOpenCreate: () => { State.meta.selectedObjective = 'TRAFFIC'; State.meta.isObjectiveModalOpen = true; Render(); },
-      metaCloseObjectiveModal: () => { State.meta.isObjectiveModalOpen = false; Render(); },
-      metaSelectObjective: (obj) => { State.meta.selectedObjective = obj; Render(); },
-      metaStartCreation: () => { 
-        State.meta.draft = defaultMetaDraft(State.meta.selectedObjective);
-        State.meta.currentStep = 'campaign';
-        State.meta.isObjectiveModalOpen = false;
-        State.meta.view = 'create';
-        Render();
-      },
-      metaSetStep: (step) => { State.meta.currentStep = step; Render(); },
-      metaUpdateDraft: (level, field, value) => { State.meta.draft[level][field] = value; Render(); },
-      metaUpdateManualPlacement: (field, value) => { State.meta.draft.adSet.manualPlacements[field] = value; Render(); },
-      metaToggleStatus: (id) => {
-        const camp = State.meta.campaigns.find(c => c.id === id);
-        if (camp) { camp.status = camp.status === 'active' ? 'paused' : 'active'; camp.delivery = camp.status === 'active' ? 'Actif' : 'Désactivé'; }
-        Render();
-      },
-      metaEditCampaign: (id) => {
-        const camp = State.meta.campaigns.find(c => c.id === id);
-        State.meta.draft = defaultMetaDraft(camp.objective);
-        State.meta.draft.campaign.name = camp.name;
-        State.meta.currentStep = 'campaign';
-        State.meta.view = 'create';
-        Render();
-      },
-      metaDuplicateCampaign: (id) => {
-        const camp = State.meta.campaigns.find(c => c.id === id);
-        State.meta.campaigns.unshift({ ...camp, id: Date.now(), name: camp.name + ' - Copie', status: 'paused', delivery: 'Brouillon', amountSpent: '0,00 €', results: '-', reach: '-', impressions: '-' });
-        Render();
-      },
-      metaPublish: () => {
-        State.meta.campaigns.unshift({
-          id: Date.now(), name: State.meta.draft.campaign.name, status: 'active', delivery: 'En cours d\'examen',
-          budget: `${State.meta.draft.adSet.budget},00 € / ${State.meta.draft.adSet.budgetType === 'DAILY' ? 'jour' : 'global'}`,
-          amountSpent: '0,00 €', results: '-', reach: '-', impressions: '-', cpc: '-', landingPageViews: '-', postReactions: '-', postComments: '-', engagementRate: '-', trafficGoogle: '-', purchases: '-', objective: State.meta.draft.campaign.objective
-        });
-        State.meta.view = 'dashboard';
-        Render();
-      },
-      metaSetPreviewFormat: (f) => { State.meta.previewFormat = f; Render(); },
-      metaToggleSafeZones: () => { State.meta.showSafeZones = !State.meta.showSafeZones; Render(); },
-      metaHandleImageUpload: (input, placement) => {
-        const file = input.files[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onloadend = () => { State.meta.draft.ad.media[placement] = reader.result; Render(); };
-          reader.readAsDataURL(file);
-        }
-      },
-      metaHandleCarouselImageUpload: (input, index) => {
-        const file = input.files[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onloadend = () => { State.meta.draft.ad.carouselCards[index].image = reader.result; Render(); };
-          reader.readAsDataURL(file);
-        }
-      },
-      metaUpdateCarouselCard: (index, field, value) => { State.meta.draft.ad.carouselCards[index][field] = value; Render(); },
-      metaAddCarouselCard: () => { State.meta.draft.ad.carouselCards.push({ id: Date.now(), image: '', headline: `Titre carte ${State.meta.draft.ad.carouselCards.length + 1}`, url: '' }); Render(); },
-      metaRemoveCarouselCard: (index) => { State.meta.draft.ad.carouselCards.splice(index, 1); Render(); },
-      metaExport: () => {
-        const d = State.meta.draft;
-        let content = `=== ÉVALUATION : SIMULATION META ADS ===\nDate : ${new Date().toLocaleString('fr-FR')}\n\n`;
-        content += `--- 1. CAMPAGNE ---\nNom : ${d.campaign.name}\nObjectif : ${d.campaign.objective}\n\n`;
-        content += `--- 2. ENSEMBLE DE PUBLICITÉS ---\nNom : ${d.adSet.name}\nBudget : ${d.adSet.budget}€ (${d.adSet.budgetType})\nLieux : ${d.adSet.locations}\nÂge : ${d.adSet.ageMin} à ${d.adSet.ageMax}\nCiblage : ${d.adSet.detailedTargeting || 'Aucun'}\nPlacements : ${d.adSet.placements}\n\n`;
-        content += `--- 3. PUBLICITÉ ---\nNom : ${d.ad.name}\nPage FB : ${d.ad.facebookPage}\nFormat : ${d.ad.format}\nTexte : ${d.ad.primaryText}\nCTA : ${d.ad.callToAction}\n`;
-        if (d.ad.format === 'CAROUSEL') {
-          content += `\n--- CARROUSEL ---\n` + d.ad.carouselCards.map((c,i) => `Carte ${i+1}: Titre="${c.headline}" URL="${c.url}"`).join('\n') + '\n';
-        } else {
-          content += `Titre : ${d.ad.headline}\nURL : ${d.ad.url}\n`;
-        }
-        content += `UTM : ${d.ad.urlParameters}\nPixel : ${d.ad.pixelActive ? 'OUI' : 'NON'}`;
-        downloadTextFile(`MetaAds_${d.campaign.name.replace(/\s+/g, '_')}.txt`, content);
-      },
-
-      // --- GA4 ACTIONS ---
-      ga4SetActiveMenu: (m) => { State.ga4.activeMenu = m; Render(); },
-      ga4SetPrimaryDimension: (d) => { State.ga4.primaryDimension = d; Render(); },
-      ga4SetSearchQuery: (q) => { State.ga4.searchQuery = q; Render(); },
-      ga4SetHomeKeyEvent: (e) => { State.ga4.homeKeyEvent = e; Render(); },
-
-      // --- GOOGLE ADS ACTIONS ---
-      gadsSetView: (v) => { State.gads.view = v; Render(); },
-      gadsSetStep: (step) => { State.gads.currentStep = step; Render(); },
-      gadsOpenCreate: () => { State.gads.draft = defaultGAdsDraft(); State.gads.currentStep = 'settings'; State.gads.view = 'create'; Render(); },
-      gadsUpdateDraft: (level, field, value) => { State.gads.draft[level][field] = value; Render(); },
-      gadsUpdateArrayField: (level, field, index, value) => { State.gads.draft[level][field][index] = value; Render(); },
-      gadsHandleSitelinkChange: (index, field, value) => { State.gads.draft.ad.sitelinks[index][field] = value; Render(); },
-      gadsHandleAssetUpload: (input, type) => {
-        const file = input.files[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onloadend = () => { State.gads.draft.ad[type].push(reader.result); Render(); };
-          reader.readAsDataURL(file);
-        }
-      },
-      gadsRemoveAsset: (index, type) => { State.gads.draft.ad[type].splice(index, 1); Render(); },
-      gadsPublish: () => {
-        const typeLabels = { 'SEARCH': 'Search', 'DISPLAY': 'Display', 'PMAX': 'Performance Max', 'VIDEO': 'Vidéo' };
-        State.gads.campaigns.unshift({
-          id: Date.now(), name: State.gads.draft.settings.name, type: typeLabels[State.gads.draft.settings.type], status: 'active', budget: `${State.gads.draft.settings.budget},00 €/jour`,
-          clicks: '0', impressions: '0', ctr: '0,00 %', cpc: '0,00 €', cost: '0,00 €', conversions: '0'
-        });
-        State.gads.view = 'dashboard';
-        Render();
-      },
-      gadsExport: () => {
-        const d = State.gads.draft;
-        let content = `=== ÉVALUATION : SIMULATION GOOGLE ADS ===\nDate : ${new Date().toLocaleString('fr-FR')}\n\n`;
-        content += `--- 1. PARAMÈTRES ---\nNom : ${d.settings.name}\nObjectif : ${d.settings.goal}\nType : ${d.settings.type}\nBudget : ${d.settings.budget}€/j\nEnchères : ${d.settings.bidding}\nZones : ${d.settings.location}\nLangues : ${d.settings.language}\n\n`;
-        content += `--- 2. GROUPE D'ANNONCES ---\nNom : ${d.adGroup.name}\nMots-clés :\n${d.adGroup.keywords || 'N/A'}\n\n`;
-        content += `--- 3. ANNONCES ---\nURL : ${d.ad.finalUrl}\nChemin : /${d.ad.path1}/${d.ad.path2}\n\nTitres :\n${d.ad.headlines.filter(h => h.trim()).map(h => '- ' + h).join('\n')}\n\nDescriptions :\n${d.ad.descriptions.filter(d => d.trim()).map(d => '- ' + d).join('\n')}\n\nSitelinks :\n${d.ad.sitelinks.filter(s => s.text.trim()).map(s => `- ${s.text} (${s.url})`).join('\n')}`;
-        downloadTextFile(`GoogleAds_${d.settings.name.replace(/\s+/g, '_')}.txt`, content);
-      }
-    };
-
-    // Helper Export Fichier
-    function downloadTextFile(filename, text) {
-      const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      reader.readAsDataURL(file);
     }
+  };
 
-    // Helper Affichage URL
-    const getDisplayUrl = (url) => {
-      try { if (!url) return 'EXEMPLE.COM'; return new URL(url.startsWith('http') ? url : `https://${url}`).hostname.replace('www.', '').toUpperCase(); } 
-      catch (e) { return 'EXEMPLE.COM'; }
-    };
-    
-    const getCTALabel = (cta) => {
-      const ctas = { 'LEARN_MORE': 'En savoir plus', 'SHOP_NOW': 'Acheter', 'SIGN_UP': "S'inscrire", 'CONTACT_US': 'Nous contacter', 'APPLY_NOW': 'Postuler', 'BOOK_NOW': 'Réserver', 'DOWNLOAD': 'Télécharger', 'GET_OFFER': 'Obtenir l\'offre', 'SUBSCRIBE': 'S\'abonner', 'WATCH_MORE': 'Voir plus', 'LISTEN_NOW': 'Écouter', 'NO_BUTTON': '' };
-      return ctas[cta] || '';
-    };
+  const updateCarouselCard = (index, field, value) => {
+    const newCards = [...draft.ad.carouselCards];
+    newCards[index][field] = value;
+    updateDraft('ad', 'carouselCards', newCards);
+  };
 
-    const opt = (val, current, label) => `<option value="${val}" ${val === current ? 'selected' : ''}>${label}</option>`;
+  const addCarouselCard = () => {
+    const newCards = [...draft.ad.carouselCards, { id: Date.now(), image: '', headline: `Titre de la carte ${draft.ad.carouselCards.length + 1}`, url: '' }];
+    updateDraft('ad', 'carouselCards', newCards);
+  };
 
-    // ==========================================
-    // RENDU (HTML TEMPLATES)
-    // ==========================================
+  const removeCarouselCard = (index) => {
+    const newCards = draft.ad.carouselCards.filter((_, i) => i !== index);
+    updateDraft('ad', 'carouselCards', newCards);
+  };
 
-    function Render() {
-      const app = document.getElementById('app');
-      if (State.currentApp === 'hub') app.innerHTML = ViewHub();
-      else if (State.currentApp === 'meta') app.innerHTML = ViewMeta();
-      else if (State.currentApp === 'ga4') app.innerHTML = ViewGA4();
-      else if (State.currentApp === 'googleads') app.innerHTML = ViewGAds();
-      
-      // Init icons
-      lucide.createIcons();
-    }
+  const getDisplayUrl = (url) => {
+    try {
+      if (!url) return 'EXEMPLE.COM';
+      const urlObj = new URL(url.startsWith('http') ? url : `https://${url}`);
+      return urlObj.hostname.replace('www.', '').toUpperCase();
+    } catch (e) { return 'EXEMPLE.COM'; }
+  };
 
-    // --- HUB ---
-    function ViewHub() {
-      return `
-        <div class="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-6 font-sans">
-          <div class="max-w-5xl w-full text-center mb-12">
-            <h1 class="text-4xl font-extrabold text-gray-900 mb-4 tracking-tight">Portail de Formation Marketing</h1>
-            <p class="text-lg text-gray-600">Sélectionnez un environnement pour démarrer la simulation pratique.</p>
-          </div>
-          
-          <div class="flex flex-col items-center w-full">
-            <div class="grid md:grid-cols-2 gap-8 max-w-4xl w-full mb-8">
-              <div onclick="Actions.nav('meta')" class="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 p-8 cursor-pointer border-2 border-transparent hover:border-blue-500 flex flex-col items-center text-center group">
-                 <div class="w-20 h-20 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">${Logos.Meta}</div>
-                 <h2 class="text-2xl font-bold text-gray-900 mb-3">Meta Ads Manager</h2>
-                 <p class="text-gray-500 leading-relaxed text-sm">Simulateur de création de campagnes, paramétrage d'audiences, gestion des placements et prévisualisation.</p>
-              </div>
-              
-              <div onclick="Actions.nav('ga4')" class="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 p-8 cursor-pointer border-2 border-transparent hover:border-amber-500 flex flex-col items-center text-center group">
-                 <div class="w-20 h-20 bg-amber-50 text-amber-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">${Logos.GA4}</div>
-                 <h2 class="text-2xl font-bold text-gray-900 mb-3">Google Analytics 4</h2>
-                 <p class="text-gray-500 leading-relaxed text-sm">Analyse de l'acquisition, chronologie du trafic, comportement sur les pages et mesure des événements clés.</p>
-              </div>
-            </div>
+  const getCTALabel = (cta) => {
+      const ctas = { 'LEARN_MORE': 'En savoir plus', 'SHOP_NOW': 'Acheter', 'SIGN_UP': "S'inscrire", 'CONTACT_US': 'Nous contacter', 'APPLY_NOW': 'Postuler maintenant', 'BOOK_NOW': 'Réserver', 'DOWNLOAD': 'Télécharger', 'GET_OFFER': 'Obtenir l\'offre', 'SUBSCRIBE': 'S\'abonner', 'WATCH_MORE': 'Voir plus', 'LISTEN_NOW': 'Écouter maintenant', 'NO_BUTTON': '' };
+    return ctas[cta] || '';
+  };
 
-            <div class="w-full md:max-w-[432px]">
-              <div onclick="Actions.nav('googleads')" class="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 p-8 cursor-pointer border-2 border-transparent hover:border-green-500 flex flex-col items-center text-center group">
-                 <div class="w-20 h-20 bg-green-50 text-green-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">${Logos.GAds}</div>
-                 <h2 class="text-2xl font-bold text-gray-900 mb-3">Google Ads</h2>
-                 <p class="text-gray-500 leading-relaxed text-sm">Créez des campagnes sur le Réseau de Recherche, Display ou PMax. Définissez vos mots-clés et enchères.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    // --- META ADS ---
-    function ViewMeta() {
-      const s = State.meta;
-      
-      const Sidebar = `
-        <div class="w-16 bg-white border-r border-gray-200 flex flex-col items-center py-4 z-20 shadow-sm shrink-0">
-          <button onclick="Actions.nav('hub')" class="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-600 mb-8"><i data-lucide="arrow-left" class="w-5 h-5"></i></button>
-          <nav class="flex flex-col gap-6 flex-1 w-full">
-            <div onclick="Actions.metaSetView('dashboard')" class="p-3 mx-2 rounded-lg cursor-pointer flex justify-center ${s.view === 'dashboard' ? 'bg-blue-50 text-blue-600' : 'text-gray-500 hover:bg-gray-100'}"><i data-lucide="layout-dashboard" class="w-5 h-5"></i></div>
-            <div class="p-3 mx-2 rounded-lg cursor-pointer flex justify-center ${s.view === 'create' ? 'bg-blue-50 text-blue-600' : 'text-gray-500 hover:bg-gray-100'}"><i data-lucide="megaphone" class="w-5 h-5"></i></div>
-            <div class="p-3 mx-2 rounded-lg cursor-pointer flex justify-center text-gray-500 hover:bg-gray-100"><i data-lucide="users" class="w-5 h-5"></i></div>
-            <div class="p-3 mx-2 rounded-lg cursor-pointer flex justify-center text-gray-500 hover:bg-gray-100"><i data-lucide="bar-chart-2" class="w-5 h-5"></i></div>
-          </nav>
-        </div>`;
-
-      let Content = '';
-      if (s.view === 'dashboard') {
-        const rows = s.campaigns.map(camp => `
-          <tr class="border-b border-gray-100 hover:bg-gray-50 group h-14">
-            <td class="px-4 py-2 sticky left-0 bg-white group-hover:bg-gray-50 z-10"><input type="checkbox" class="rounded text-blue-600" /></td>
-            <td class="px-4 py-2 sticky left-12 bg-white group-hover:bg-gray-50 z-10">
-              <div onclick="Actions.metaToggleStatus(${camp.id})" class="w-8 h-4 rounded-full relative cursor-pointer ${camp.status === 'active' ? 'bg-blue-600' : 'bg-gray-300'}">
-                <div class="absolute top-0.5 w-3 h-3 rounded-full bg-white transition-all ${camp.status === 'active' ? 'left-4.5' : 'left-0.5'}"></div>
-              </div>
-            </td>
-            <td class="px-4 py-2 font-medium text-blue-600 sticky left-[112px] bg-white group-hover:bg-gray-50 z-10 shadow-[1px_0_0_0_#e5e7eb] align-top pt-3">
-              <div class="w-56 truncate cursor-pointer hover:underline" onclick="Actions.metaEditCampaign(${camp.id})">${camp.name}</div>
-              <div class="text-[11px] text-gray-500 font-normal mt-1 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity absolute bg-gray-50 pr-2">
-                <span onclick="Actions.metaEditCampaign(${camp.id})" class="hover:text-gray-900 cursor-pointer flex items-center gap-0.5"><i data-lucide="edit-2" class="w-3 h-3"></i> Modifier</span>
-                <span onclick="Actions.metaDuplicateCampaign(${camp.id})" class="hover:text-gray-900 cursor-pointer flex items-center gap-0.5"><i data-lucide="folder-open" class="w-3 h-3"></i> Dupliquer</span>
-              </div>
-            </td>
-            <td class="px-4 py-2 text-gray-700">${camp.delivery}</td>
-            <td class="px-4 py-3 text-right text-gray-700">${camp.budget}</td>
-            <td class="px-4 py-3 text-right font-medium">${camp.amountSpent}</td>
-            <td class="px-4 py-3 text-right font-medium text-green-600">${camp.purchases}</td>
-            <td class="px-4 py-3 text-right font-medium">${camp.results}</td>
-            <td class="px-4 py-3 text-right text-gray-700">${camp.reach}</td>
-            <td class="px-4 py-3 text-right text-gray-700">${camp.impressions}</td>
-          </tr>
-        `).join('');
-
-        Content = `
-          <div class="flex-1 flex flex-col h-full relative">
-            ${s.isObjectiveModalOpen ? `
-              <div class="absolute inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-                <div class="bg-white rounded-xl shadow-2xl w-full max-w-3xl flex flex-col overflow-hidden">
-                  <div class="p-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
-                    <h2 class="text-xl font-semibold text-gray-900">Choisir un objectif de campagne</h2>
-                    <button onclick="Actions.metaCloseObjectiveModal()" class="text-gray-500 hover:bg-gray-200 p-2 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
-                  </div>
-                  <div class="p-8 grid grid-cols-3 gap-4">
-                    ${['AWARENESS', 'TRAFFIC', 'ENGAGEMENT', 'LEADS', 'APP_PROMOTION', 'SALES'].map(obj => `
-                      <div onclick="Actions.metaSelectObjective('${obj}')" class="border-2 p-4 rounded-xl cursor-pointer transition-all ${s.selectedObjective === obj ? 'border-blue-600 bg-blue-50/50' : 'border-gray-200 hover:border-blue-300'}">
-                        <h3 class="font-semibold text-gray-900 mb-1">${obj}</h3>
-                      </div>
-                    `).join('')}
-                  </div>
-                  <div class="p-4 bg-gray-50 border-t border-gray-200 text-right">
-                    <button onclick="Actions.metaStartCreation()" class="px-6 py-2 bg-blue-600 text-white rounded-md font-medium">Continuer</button>
-                  </div>
-                </div>
-              </div>
-            ` : ''}
-
-            <header class="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center shadow-sm shrink-0">
-              <h1 class="text-xl font-semibold text-gray-900">Campagnes</h1>
-            </header>
-            <div class="bg-white border-b border-gray-200 px-6 py-3 flex items-center gap-4 shrink-0">
-              <button onclick="Actions.metaOpenCreate()" class="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-md text-sm transition-colors"><i data-lucide="plus" class="w-4 h-4"></i> Créer</button>
-            </div>
-            <div class="flex-1 overflow-auto bg-gray-50 p-6">
-              <div class="bg-white rounded-lg shadow border border-gray-200 overflow-hidden overflow-x-auto">
-                <table class="w-full text-sm text-left whitespace-nowrap">
-                  <thead class="text-xs text-gray-500 bg-gray-50 border-b border-gray-200 uppercase">
-                    <tr><th class="px-4 py-3 sticky left-0 bg-gray-50 z-10 w-12"></th><th class="px-4 py-3 sticky left-12 bg-gray-50 z-10 w-16">Dés.</th><th class="px-4 py-3 font-medium sticky left-[112px] bg-gray-50 z-10">Nom de la campagne</th><th class="px-4 py-3 font-medium">Diffusion</th><th class="px-4 py-3 font-medium text-right">Budget</th><th class="px-4 py-3 font-medium text-right">Montant dépensé</th><th class="px-4 py-3 font-medium text-right">Achats</th><th class="px-4 py-3 font-medium text-right">Résultats</th><th class="px-4 py-3 font-medium text-right">Couverture</th><th class="px-4 py-3 font-medium text-right">Impressions</th></tr>
-                  </thead>
-                  <tbody>${rows}</tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        `;
-      } else {
-        // Mode Création
-        const d = s.draft;
-        const step = s.currentStep;
-
-        let formHtml = '';
-        if (step === 'campaign') {
-          formHtml = `
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 class="text-xl font-semibold mb-6">Détails de la campagne</h2>
-              <input type="text" value="${d.campaign.name}" onchange="Actions.metaUpdateDraft('campaign', 'name', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded-md mb-6 outline-none focus:border-blue-500" />
-              <div class="border-t border-gray-100 pt-6">
-                <h3 class="text-md font-medium mb-2">Objectif</h3>
-                <select disabled class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
-                  <option>${d.campaign.objective}</option>
-                </select>
-              </div>
-            </div>
-          `;
-        } else if (step === 'adset') {
-          formHtml = `
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-              <h2 class="text-xl font-semibold mb-4">Ensemble de publicités</h2>
-              <input type="text" value="${d.adSet.name}" onchange="Actions.metaUpdateDraft('adSet', 'name', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded-md mb-4 outline-none focus:border-blue-500" />
-              <h3 class="text-md font-medium mb-2">Budget</h3>
-              <div class="flex gap-4">
-                <select onchange="Actions.metaUpdateDraft('adSet', 'budgetType', this.value)" class="flex-1 px-3 py-2 border border-gray-300 rounded-md">
-                  ${opt('DAILY', d.adSet.budgetType, 'Quotidien')} ${opt('LIFETIME', d.adSet.budgetType, 'Global')}
-                </select>
-                <input type="number" value="${d.adSet.budget}" onchange="Actions.metaUpdateDraft('adSet', 'budget', this.value)" class="flex-1 px-3 py-2 border border-gray-300 rounded-md" />
-              </div>
-            </div>
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-              <h3 class="text-md font-medium mb-4 flex items-center gap-2"><i data-lucide="users" class="w-5 h-5 text-blue-600"></i> Audience</h3>
-              <label class="block text-sm mb-1">Lieux</label>
-              <input type="text" value="${d.adSet.locations}" onchange="Actions.metaUpdateDraft('adSet', 'locations', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded-md mb-4" />
-              <label class="block text-sm mb-1">Ciblage avancé</label>
-              <input type="text" value="${d.adSet.detailedTargeting}" onchange="Actions.metaUpdateDraft('adSet', 'detailedTargeting', this.value)" placeholder="Intérêts..." class="w-full px-3 py-2 border border-gray-300 rounded-md" />
-            </div>
-          `;
-        } else if (step === 'ad') {
-          formHtml = `
-            <div class="flex gap-6 items-start">
-              <div class="flex-1 space-y-6">
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                  <h2 class="text-lg font-semibold mb-4">Création de la publicité</h2>
-                  <select onchange="Actions.metaUpdateDraft('ad', 'adSetup', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded-md mb-6">
-                    ${opt('CREATE', d.ad.adSetup, 'Créer une publicité')} ${opt('EXISTING', d.ad.adSetup, 'Publication existante')}
-                  </select>
-                  ${d.ad.adSetup !== 'EXISTING' ? `
-                    <div class="flex gap-4 mb-6">
-                      <label class="flex items-center gap-2"><input type="radio" ${d.ad.format === 'SINGLE_IMAGE'?'checked':''} onchange="Actions.metaUpdateDraft('ad', 'format', 'SINGLE_IMAGE')"> Image unique</label>
-                      <label class="flex items-center gap-2"><input type="radio" ${d.ad.format === 'CAROUSEL'?'checked':''} onchange="Actions.metaUpdateDraft('ad', 'format', 'CAROUSEL')"> Carrousel</label>
-                    </div>
-                    ${d.ad.format === 'SINGLE_IMAGE' ? `
-                      <label class="block p-4 border border-dashed rounded-lg mb-4 cursor-pointer text-center bg-gray-50 hover:bg-gray-100">
-                        <input type="file" class="hidden" onchange="Actions.metaHandleImageUpload(this, 'feeds')" />
-                        <span class="text-sm font-medium text-blue-600">Télécharger une image (Fils)</span>
-                      </label>
-                      <label class="block text-sm mb-1">Texte principal</label>
-                      <textarea rows="3" onchange="Actions.metaUpdateDraft('ad', 'primaryText', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded-md mb-4">${d.ad.primaryText}</textarea>
-                      <label class="block text-sm mb-1">Titre</label>
-                      <input type="text" value="${d.ad.headline}" onchange="Actions.metaUpdateDraft('ad', 'headline', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded-md mb-4" />
-                    ` : `
-                      <div class="p-4 bg-gray-50 border rounded-lg mb-4 text-sm text-gray-600">Mode Carrousel: Imaginez ajouter des cartes ici.</div>
-                    `}
-                    <label class="block text-sm mb-1">URL</label>
-                    <input type="url" value="${d.ad.url}" onchange="Actions.metaUpdateDraft('ad', 'url', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded-md mb-4" />
-                    <label class="block text-sm mb-1">UTMs</label>
-                    <input type="text" value="${d.ad.urlParameters}" onchange="Actions.metaUpdateDraft('ad', 'urlParameters', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded-md font-mono" />
-                  ` : `<div class="p-8 text-center text-gray-500 border-2 border-dashed rounded-lg">Choisissez un post existant...</div>`}
-                </div>
-              </div>
-              <div class="w-80 bg-white rounded-lg shadow-sm border border-gray-200 shrink-0 p-4 sticky top-4">
-                 <h3 class="font-semibold text-sm mb-4">Aperçu</h3>
-                 ${d.ad.format === 'SINGLE_IMAGE' && d.ad.adSetup !== 'EXISTING' ? `
-                   <div class="border rounded-lg overflow-hidden shadow-sm">
-                      <div class="p-3 font-semibold text-sm flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center">L</div>${d.ad.facebookPage}</div>
-                      <div class="px-3 pb-2 text-sm">${d.ad.primaryText || 'Texte...'}</div>
-                      <div class="aspect-square bg-gray-100 flex items-center justify-center overflow-hidden">
-                        ${d.ad.media.feeds ? `<img src="${d.ad.media.feeds}" class="w-full h-full object-cover">` : '<span class="text-gray-400">Image</span>'}
-                      </div>
-                      <div class="p-3 bg-gray-50">
-                        <div class="text-xs text-gray-500 uppercase">${getDisplayUrl(d.ad.url)}</div>
-                        <div class="font-bold text-sm">${d.ad.headline || 'Titre'}</div>
-                      </div>
-                   </div>
-                 ` : '<div class="text-sm text-gray-500 text-center py-10 border rounded bg-gray-50">Aperçu dynamique disponible pour Image Unique</div>'}
-              </div>
-            </div>
-          `;
-        }
-
-        Content = `
-          <div class="flex-1 flex flex-col h-full bg-white absolute inset-0 z-30">
-            <header class="bg-white border-b border-gray-200 px-4 py-3 flex justify-between items-center shadow-sm shrink-0">
-              <div class="flex items-center gap-4">
-                <button onclick="Actions.metaSetView('dashboard')" class="p-2 hover:bg-gray-100 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
-                <span class="font-semibold">${d.campaign.name}</span>
-              </div>
-              <div class="flex gap-3">
-                <button onclick="Actions.metaExport()" class="px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-md text-sm hover:bg-gray-50 flex items-center gap-2"><i data-lucide="download" class="w-4 h-4"></i> Exporter (.txt)</button>
-                <button onclick="Actions.metaPublish()" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md text-sm">Publier</button>
-              </div>
-            </header>
-            <div class="flex flex-1 overflow-hidden">
-              <div class="w-64 bg-gray-50 border-r border-gray-200 p-4">
-                <div class="space-y-1">
-                  <div onclick="Actions.metaSetStep('campaign')" class="p-2 rounded cursor-pointer text-sm ${step==='campaign'?'bg-blue-50 text-blue-700':'text-gray-700 hover:bg-gray-200'}">Campagne</div>
-                  <div class="pl-4 border-l ml-2 space-y-1">
-                    <div onclick="Actions.metaSetStep('adset')" class="p-2 rounded cursor-pointer text-sm ${step==='adset'?'bg-blue-50 text-blue-700':'text-gray-700 hover:bg-gray-200'}">Ensemble de pubs</div>
-                    <div class="pl-4 border-l ml-2">
-                      <div onclick="Actions.metaSetStep('ad')" class="p-2 rounded cursor-pointer text-sm ${step==='ad'?'bg-blue-50 text-blue-700':'text-gray-700 hover:bg-gray-200'}">Publicité</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="flex-1 overflow-y-auto bg-gray-100 p-6">
-                <div class="max-w-5xl mx-auto">${formHtml}</div>
-              </div>
-            </div>
-          </div>
-        `;
-      }
-
-      return `<div class="flex h-screen bg-gray-100 font-sans w-full">${Sidebar}${Content}</div>`;
-    }
-
-    // --- GA4 ---
-    function ViewGA4() {
-      const s = State.ga4;
-      const data = [
-        { c: 'Organic Search', sm: 'google / organic', camp: '(organic)', u: 4520, s: 5100, es: 3468, rev: 2150 },
-        { c: 'Direct', sm: '(direct) / (none)', camp: '(direct)', u: 2100, s: 2300, es: 1035, rev: 540 },
-        { c: 'Paid Social', sm: 'facebook / ad', camp: 'lancement', u: 1250, s: 1450, es: 754, rev: 45 },
-        { c: 'Paid Social', sm: 'facebook / ad', camp: 'retargeting', u: 320, s: 480, es: 360, rev: 850 },
-        { c: 'Paid Search', sm: 'google / cpc', camp: 'marque', u: 640, s: 710, es: 511, rev: 1850 },
-      ];
-
-      const keyMap = { 'channel': 'c', 'sourceMedium': 'sm', 'campaign': 'camp' };
-      const dimKey = keyMap[s.primaryDimension];
-
-      const aggregated = data.reduce((acc, row) => {
-        const key = row[dimKey];
-        if (!acc[key]) acc[key] = { name: key, u: 0, s: 0, es: 0, rev: 0, isMeta: false };
-        acc[key].u += row.u; acc[key].s += row.s; acc[key].es += row.es; acc[key].rev += row.rev;
-        acc[key].isMeta = acc[key].isMeta || row.sm === 'facebook / ad';
-        return acc;
-      }, {});
-
-      const rows = Object.values(aggregated).filter(r => r.name.toLowerCase().includes(s.searchQuery.toLowerCase())).map(r => `
-        <tr class="border-b border-gray-100 hover:bg-gray-50 ${r.isMeta ? 'bg-blue-50/30' : ''}">
-          <td class="px-4 py-3 sticky left-0 bg-white flex items-center gap-2 ${r.isMeta ? 'font-bold text-blue-800' : ''}">
-            ${r.name} ${r.isMeta ? '<span class="px-1.5 py-0.5 bg-blue-600 text-white text-[10px] rounded uppercase ml-auto">Meta Ads</span>' : ''}
-          </td>
-          <td class="px-4 py-3 text-right">${r.u}</td>
-          <td class="px-4 py-3 text-right">${r.s}</td>
-          <td class="px-4 py-3 text-right">${Math.round((r.es/r.s)*100)}%</td>
-          <td class="px-4 py-3 text-right font-medium">${r.rev} €</td>
-        </tr>
-      `).join('');
-
-      return `
-        <div class="flex h-screen bg-white font-sans w-full">
-          <div class="w-16 bg-gray-50 border-r flex flex-col items-center z-20 shrink-0">
-            <div class="h-16 flex items-center justify-center border-b w-full">
-              <button onclick="Actions.nav('hub')" class="w-8 h-8 bg-gray-200 hover:bg-gray-300 rounded flex items-center justify-center transition-colors"><i data-lucide="arrow-left" class="w-4 h-4"></i></button>
-            </div>
-            <nav class="flex flex-col w-full mt-4">
-              <div onclick="Actions.ga4SetActiveMenu('home')" class="p-3 w-12 mx-auto rounded-xl cursor-pointer flex justify-center mb-2 ${s.activeMenu==='home'?'bg-blue-50 text-blue-600':'text-gray-500'}"><i data-lucide="home" class="w-5 h-5"></i></div>
-              <div onclick="Actions.ga4SetActiveMenu('acq-traffic')" class="p-3 w-12 mx-auto rounded-xl cursor-pointer flex justify-center mb-2 ${s.activeMenu==='acq-traffic'?'bg-blue-50 text-blue-600':'text-gray-500'}"><i data-lucide="bar-chart-2" class="w-5 h-5"></i></div>
-            </nav>
-          </div>
-          <div class="flex-1 flex flex-col bg-gray-50 overflow-hidden">
-            <header class="h-16 bg-white border-b px-6 flex items-center justify-between shrink-0 shadow-sm"><span class="font-medium text-gray-800">Boutique de l'école (GA4)</span></header>
-            <main class="flex-1 overflow-auto p-6">
-              ${s.activeMenu === 'home' ? `<div class="max-w-5xl mx-auto"><h1 class="text-2xl mb-6">Accueil</h1><div class="bg-white p-6 rounded shadow-sm">Simulateur Accueil Actif</div></div>` : `
-              <div class="max-w-[1400px] mx-auto">
-                <h1 class="text-2xl font-normal mb-6">Acquisition de trafic</h1>
-                <div class="bg-white rounded-lg border shadow-sm flex flex-col">
-                  <div class="p-4 border-b flex justify-between gap-4 flex-wrap">
-                    <input type="text" placeholder="Rechercher..." oninput="Actions.ga4SetSearchQuery(this.value)" class="px-3 py-1.5 border rounded-md text-sm outline-none focus:ring-1 focus:ring-blue-500" />
-                    <div class="flex items-center gap-2 bg-blue-50 border border-blue-200 p-2 rounded-lg shadow-sm">
-                      <span class="text-xs font-semibold text-blue-800">🎯 Dimension UTM :</span>
-                      <select onchange="Actions.ga4SetPrimaryDimension(this.value)" class="px-3 py-1.5 border border-blue-300 rounded text-sm bg-white font-medium outline-none">
-                        ${opt('channel', s.primaryDimension, 'Groupe de canaux par défaut')}
-                        ${opt('sourceMedium', s.primaryDimension, 'Source / Support')}
-                        ${opt('campaign', s.primaryDimension, 'Campagne')}
-                      </select>
-                    </div>
-                  </div>
-                  <div class="overflow-x-auto">
-                    <table class="w-full text-sm text-left">
-                      <thead class="bg-gray-50 text-xs uppercase border-b">
-                        <tr><th class="p-4 sticky left-0 bg-gray-50 w-64">Dimension</th><th class="p-4 text-right">Utilisateurs</th><th class="p-4 text-right">Sessions</th><th class="p-4 text-right">Taux d'eng.</th><th class="p-4 text-right">Revenus</th></tr>
-                      </thead>
-                      <tbody>${rows}</tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>`}
-            </main>
-          </div>
-        </div>
-      `;
-    }
-
-    // --- GOOGLE ADS ---
-    function ViewGAds() {
-      const s = State.gads;
-      const Sidebar = `
-        <div class="w-16 bg-[#202124] flex flex-col items-center py-4 z-20 shrink-0">
-          <button onclick="Actions.nav('hub')" class="w-10 h-10 hover:bg-white/10 rounded-full flex items-center justify-center text-gray-300 mb-6"><i data-lucide="arrow-left" class="w-5 h-5"></i></button>
-          <div class="w-8 h-8 mb-6 text-green-400"><i data-lucide="search" class="w-7 h-7"></i></div>
-          <nav class="flex flex-col gap-4 flex-1 w-full text-gray-400">
-            <div onclick="Actions.gadsSetView('dashboard')" class="p-3 rounded-full cursor-pointer flex justify-center ${s.view === 'dashboard' ? 'bg-[#e8f0fe] text-[#1a73e8]' : 'hover:bg-white/10 hover:text-white'}"><i data-lucide="home" class="w-5 h-5"></i></div>
-            <div class="p-3 rounded-full cursor-pointer flex justify-center hover:bg-white/10 hover:text-white"><i data-lucide="target" class="w-5 h-5"></i></div>
-          </nav>
-        </div>`;
-
-      let Content = '';
-      if (s.view === 'dashboard') {
-        Content = `
-          <div class="flex-1 flex flex-col h-full bg-gray-50">
-            <header class="bg-white border-b px-6 py-3 flex justify-between items-center shadow-sm shrink-0"><span class="text-xl text-gray-600 font-medium">Toutes les campagnes</span></header>
-            <div class="px-6 py-4 flex items-center justify-between shrink-0">
-              <button onclick="Actions.gadsOpenCreate()" class="flex items-center gap-2 px-5 py-2 bg-[#1a73e8] hover:bg-[#1557b0] text-white font-medium rounded-full text-sm shadow-sm"><i data-lucide="plus" class="w-4 h-4"></i> Nouvelle campagne</button>
-            </div>
-            <div class="flex-1 overflow-auto px-6 pb-6">
-              <div class="bg-white rounded-lg shadow-sm border overflow-hidden">
-                <table class="w-full text-sm text-left whitespace-nowrap">
-                  <thead class="text-xs text-gray-600 bg-gray-50 border-b uppercase font-medium">
-                    <tr><th class="px-4 py-3 border-r">État</th><th class="px-4 py-3 border-r">Campagne</th><th class="px-4 py-3 border-r">Type</th><th class="px-4 py-3 text-right">Budget</th><th class="px-4 py-3 text-right">Clics</th><th class="px-4 py-3 text-right">Conversions</th></tr>
-                  </thead>
-                  <tbody>
-                    ${s.campaigns.map(c => `
-                      <tr class="hover:bg-gray-50 border-b border-gray-100">
-                        <td class="px-4 py-2 border-r"><div class="w-2.5 h-2.5 rounded-full ${c.status==='active'?'bg-green-500':'bg-gray-400'}"></div></td>
-                        <td class="px-4 py-2 font-medium text-[#1a73e8] border-r">${c.name}</td><td class="px-4 py-2 border-r">${c.type}</td><td class="px-4 py-2 text-right border-r">${c.budget}</td><td class="px-4 py-2 text-right">${c.clicks}</td><td class="px-4 py-2 text-right text-blue-600 font-medium">${c.conversions}</td>
-                      </tr>
-                    `).join('')}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        `;
-      } else {
-        const d = s.draft;
-        const step = s.currentStep;
-        let formHtml = '';
-
-        if (step === 'settings') {
-          formHtml = `
-            <div class="space-y-8 bg-white p-6 rounded shadow-sm border">
-              <h2 class="text-xl font-medium mb-4">Objectifs et Type de campagne</h2>
-              <input type="text" value="${d.settings.name}" onchange="Actions.gadsUpdateDraft('settings', 'name', this.value)" class="w-full p-2 border rounded outline-none focus:border-[#1a73e8] mb-4" />
-              <select onchange="Actions.gadsUpdateDraft('settings', 'type', this.value)" class="w-full p-2 border rounded outline-none focus:border-[#1a73e8] mb-4">
-                ${opt('SEARCH', d.settings.type, 'Réseau de Recherche')} ${opt('PMAX', d.settings.type, 'Performance Max')}
+  return (
+    <div className="flex flex-col lg:flex-row gap-6 items-start">
+      <div className="flex-1 space-y-6 w-full">
+        {/* BLOC 1 : IDENTITÉ */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <h2 className="text-lg font-semibold mb-6 text-gray-900">Identité</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Page Facebook</label>
+              <select value={draft.ad.facebookPage} onChange={(e) => updateDraft('ad', 'facebookPage', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="Les Licornes du Marketing 🦄">Les Licornes du Marketing 🦄</option>
+                <option value="Ninja du ROI 🥷">Ninja du ROI 🥷</option>
               </select>
-              <h2 class="text-xl font-medium mt-6 mb-4">Budget</h2>
-              <input type="number" value="${d.settings.budget}" onchange="Actions.gadsUpdateDraft('settings', 'budget', this.value)" class="w-full p-2 border rounded outline-none focus:border-[#1a73e8]" />
             </div>
-          `;
-        } else if (step === 'adgroup') {
-          formHtml = `
-            <div class="bg-white p-6 rounded shadow-sm border">
-              <h2 class="text-xl font-medium mb-4">Mots-clés / Audience</h2>
-              <textarea onchange="Actions.gadsUpdateDraft('adGroup', 'keywords', this.value)" class="w-full h-64 p-4 border rounded font-mono text-sm outline-none focus:border-[#1a73e8]">${d.adGroup.keywords}</textarea>
-            </div>
-          `;
-        } else if (step === 'ads') {
-          formHtml = `
-            <div class="flex gap-6">
-              <div class="flex-1 space-y-4 bg-white p-6 rounded shadow-sm border">
-                <h2 class="text-xl font-medium">Annonces</h2>
-                <input type="url" value="${d.ad.finalUrl}" onchange="Actions.gadsUpdateDraft('ad', 'finalUrl', this.value)" placeholder="URL Finale" class="w-full p-2 border rounded outline-none focus:border-[#1a73e8]" />
-                <h3 class="font-medium mt-4">Titres (30 caractères max)</h3>
-                ${d.ad.headlines.slice(0,3).map((h, i) => `
-                  <input type="text" value="${h}" onchange="Actions.gadsUpdateArrayField('ad', 'headlines', ${i}, this.value)" class="w-full p-2 border rounded outline-none mb-2 focus:border-[#1a73e8]" />
-                `).join('')}
-                <h3 class="font-medium mt-4">Descriptions (90 caractères max)</h3>
-                ${d.ad.descriptions.slice(0,2).map((desc, i) => `
-                  <textarea onchange="Actions.gadsUpdateArrayField('ad', 'descriptions', ${i}, this.value)" class="w-full p-2 border rounded outline-none mb-2 resize-none focus:border-[#1a73e8]" rows="2">${desc}</textarea>
-                `).join('')}
-              </div>
-              <div class="w-80 bg-white rounded shadow-sm border shrink-0 p-4 sticky top-4 self-start">
-                 <h3 class="font-medium text-sm mb-4 bg-gray-50 p-2 rounded">Aperçu Google Search</h3>
-                 <div class="text-[13px] text-gray-900 font-bold mb-0.5">Sponsorisé</div>
-                 <div class="text-[12px] text-gray-700 truncate mb-1">${getDisplayUrl(d.ad.finalUrl)}</div>
-                 <div class="text-[20px] text-[#1a0dab] leading-tight mb-1 truncate">${d.ad.headlines.filter(h=>h).join(' | ') || 'Titre'}</div>
-                 <div class="text-[14px] text-[#4d5156] leading-snug">${d.ad.descriptions.filter(d=>d).join(' - ') || 'Description...'}</div>
-              </div>
-            </div>
-          `;
-        }
-
-        Content = `
-          <div class="flex-1 flex flex-col h-full bg-gray-50 absolute inset-0 z-30">
-            <header class="bg-white border-b px-6 py-3 flex justify-between items-center shrink-0">
-              <div class="flex items-center gap-4">
-                <button onclick="Actions.gadsSetView('dashboard')" class="p-2 hover:bg-gray-100 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
-                <span class="font-medium text-lg">Nouvelle campagne</span>
-              </div>
-              <div class="flex gap-3">
-                <button onclick="Actions.gadsExport()" class="px-4 py-2 border rounded font-medium text-sm flex items-center gap-2"><i data-lucide="download" class="w-4 h-4"></i> Exporter (.txt)</button>
-                ${step === 'ads' 
-                  ? `<button onclick="Actions.gadsPublish()" class="px-6 py-2 bg-[#1a73e8] text-white rounded text-sm">Publier</button>`
-                  : `<button onclick="Actions.gadsSetStep('${step === 'settings' ? 'adgroup' : 'ads'}')" class="px-6 py-2 bg-[#1a73e8] text-white rounded text-sm">Suivant</button>`
-                }
-              </div>
-            </header>
-            <div class="flex flex-1 overflow-hidden">
-              <div class="w-64 bg-gray-50 border-r p-4">
-                <div class="space-y-2">
-                  <div onclick="Actions.gadsSetStep('settings')" class="p-3 rounded cursor-pointer text-sm ${step==='settings'?'bg-[#e8f0fe] text-[#1a73e8]':'text-gray-600'}">1. Paramètres</div>
-                  <div onclick="Actions.gadsSetStep('adgroup')" class="p-3 rounded cursor-pointer text-sm ${step==='adgroup'?'bg-[#e8f0fe] text-[#1a73e8]':'text-gray-600'}">2. Groupes et ciblage</div>
-                  <div onclick="Actions.gadsSetStep('ads')" class="p-3 rounded cursor-pointer text-sm ${step==='ads'?'bg-[#e8f0fe] text-[#1a73e8]':'text-gray-600'}">3. Annonces</div>
-                </div>
-              </div>
-              <div class="flex-1 overflow-y-auto p-6 md:p-10"><div class="max-w-5xl mx-auto">${formHtml}</div></div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Compte Instagram</label>
+              <select value={draft.ad.instagramAccount} onChange={(e) => updateDraft('ad', 'instagramAccount', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="Utiliser la page sélectionnée">Utiliser la page sélectionnée</option>
+                <option value="@Licornes_Marketing 🦄">@Licornes_Marketing 🦄</option>
+              </select>
             </div>
           </div>
-        `;
-      }
+        </div>
 
-      return `<div class="flex h-screen font-sans w-full bg-white">${Sidebar}${Content}</div>`;
-    }
+        {/* BLOC 2 : CONFIGURATION */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <h2 className="text-lg font-semibold mb-6 text-gray-900">Configuration de la publicité</h2>
 
-    // ==========================================
-    // INITIALISATION
-    // ==========================================
-    window.State = State;
-    window.Actions = Actions;
-    window.onload = Render;
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">Création de publicité</label>
+            <select value={draft.ad.adSetup || 'CREATE'} onChange={(e) => updateDraft('ad', 'adSetup', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+              <option value="CREATE">Créer une publicité (Dark Post)</option>
+              <option value="EXISTING">Utiliser une publication existante</option>
+            </select>
+          </div>
 
+          {(!draft.ad.adSetup || draft.ad.adSetup === 'CREATE') && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-3">Format</label>
+              <div className="space-y-3">
+                <label className={`flex items-center gap-3 p-4 border rounded-lg cursor-pointer transition-colors ${draft.ad.format === 'SINGLE_IMAGE' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:bg-gray-50'}`}>
+                  <input type="radio" checked={draft.ad.format === 'SINGLE_IMAGE'} onChange={() => updateDraft('ad', 'format', 'SINGLE_IMAGE')} className="text-blue-600 w-4 h-4" />
+                  <div className="flex items-center justify-center w-8 h-8 bg-blue-100 rounded text-blue-600"><ImageIcon size={18} /></div>
+                  <div className="flex flex-col">
+                    <span className="font-medium text-gray-900">Image ou vidéo unique</span>
+                    <span className="text-xs text-gray-500">Une seule image ou vidéo plein écran</span>
+                  </div>
+                </label>
+                <label className={`flex items-center gap-3 p-4 border rounded-lg cursor-pointer transition-colors ${draft.ad.format === 'CAROUSEL' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:bg-gray-50'}`}>
+                  <input type="radio" checked={draft.ad.format === 'CAROUSEL'} onChange={() => updateDraft('ad', 'format', 'CAROUSEL')} className="text-blue-600 w-4 h-4" />
+                  <div className="flex items-center justify-center w-8 h-8 bg-gray-100 rounded text-gray-600"><Sidebar size={18} /></div>
+                  <div className="flex flex-col">
+                    <span className="font-medium text-gray-900">Carrousel</span>
+                    <span className="text-xs text-gray-500">2 images ou vidéos (ou plus) défilantes horizontalement</span>
+                  </div>
+                </label>
+                <label className={`flex items-center gap-3 p-4 border rounded-lg cursor-pointer transition-colors ${draft.ad.format === 'COLLECTION' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:bg-gray-50'}`}>
+                  <input type="radio" checked={draft.ad.format === 'COLLECTION'} onChange={() => updateDraft('ad', 'format', 'COLLECTION')} className="text-blue-600 w-4 h-4" />
+                  <div className="flex items-center justify-center w-8 h-8 bg-gray-100 rounded text-gray-600"><Layout size={18} /></div>
+                  <div className="flex flex-col">
+                    <span className="font-medium text-gray-900">Collection</span>
+                    <span className="text-xs text-gray-500">Groupe d'articles qui s'ouvre dans une expérience plein écran</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* BLOC 3 : CONTENU PUBLICITAIRE */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-lg font-semibold text-gray-900">Contenu publicitaire</h2>
+          </div>
+
+          {draft.ad.adSetup === 'EXISTING' ? (
+            <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
+              <FileText size={40} className="text-gray-400 mb-3" />
+              <p className="text-sm font-medium text-gray-900 mb-1">Sélectionner une publication</p>
+              <p className="text-xs text-gray-500 mb-4 text-center">Choisissez un post existant sur votre Page Facebook ou compte Instagram pour conserver la preuve sociale (Likes, Commentaires).</p>
+              <button className="px-4 py-2 bg-white border border-gray-300 text-gray-700 font-medium rounded-md text-sm shadow-sm hover:bg-gray-50">Choisir une publication</button>
+            </div>
+          ) : draft.ad.format === 'SINGLE_IMAGE' ? (
+            <>
+              {/* INTERFACE : IMAGE UNIQUE */}
+              <div className="space-y-3 mb-6">
+                <div className="text-sm font-medium text-gray-700 mb-2">Contenu multimédia (Exigences de format)</div>
+                <label className="flex items-center justify-between p-3 hover:bg-gray-50 cursor-pointer rounded-lg border border-transparent hover:border-gray-200 transition-all group">
+                  <div className="flex items-center gap-4">
+                    <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, 'feeds')} />
+                    <div className="w-12 h-12 bg-gray-100 rounded flex items-center justify-center overflow-hidden shrink-0 border border-gray-200 group-hover:border-blue-400">
+                      {draft.ad.media.feeds ? <img src={draft.ad.media.feeds} className="w-full h-full object-cover" alt="Feed" /> : <ImageIcon size={20} className="text-gray-400" />}
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-[15px] font-bold text-gray-900">Fils d'actualité, In-stream</span>
+                      <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded mt-1 w-max">🎯 Format exigé : 1:1 (Carré) ou 4:5</span>
+                    </div>
+                  </div>
+                  <ChevronDown size={20} className="text-gray-500" />
+                </label>
+                <label className="flex items-center justify-between p-3 hover:bg-gray-50 cursor-pointer rounded-lg border border-transparent hover:border-gray-200 transition-all group">
+                  <div className="flex items-center gap-4">
+                    <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, 'stories')} />
+                    <div className="w-10 h-16 bg-gray-100 rounded flex items-center justify-center overflow-hidden shrink-0 border border-gray-200 ml-1 group-hover:border-blue-400">
+                      {draft.ad.media.stories ? <img src={draft.ad.media.stories} className="w-full h-full object-cover" alt="Story" /> : <Smartphone size={20} className="text-gray-400" />}
+                    </div>
+                    <div className="flex flex-col ml-1">
+                      <span className="text-[15px] font-bold text-gray-900">Stories et Reels</span>
+                      <span className="text-xs font-semibold text-purple-600 bg-purple-50 px-2 py-0.5 rounded mt-1 w-max">🎯 Format exigé : 9:16 (Vertical)</span>
+                    </div>
+                  </div>
+                  <ChevronDown size={20} className="text-gray-500" />
+                </label>
+              </div>
+
+              <label className="block text-sm font-medium mt-6 mb-2">Texte principal</label>
+              <textarea value={draft.ad.primaryText} onChange={(e) => updateDraft('ad', 'primaryText', e.target.value)} className="w-full px-3 py-2 border rounded-md mb-4 focus:ring-2 focus:ring-blue-500 outline-none" rows="3" />
+
+              <label className="block text-sm font-medium mb-2">Titre</label>
+              <input type="text" value={draft.ad.headline} onChange={(e) => updateDraft('ad', 'headline', e.target.value)} className="w-full px-3 py-2 border rounded-md mb-4 focus:ring-2 focus:ring-blue-500 outline-none" />
+            </>
+          ) : draft.ad.format === 'CAROUSEL' ? (
+            <>
+              {/* INTERFACE : CARROUSEL */}
+              <div className="space-y-4 mb-6">
+                <div className="flex justify-between items-end mb-2">
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-700">Cartes du carrousel</h3>
+                    <p className="text-xs text-gray-500 mt-1">🎯 Format exigé pour les cartes : 1:1 (Carré). Meta requiert au moins 2 cartes.</p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  {draft.ad.carouselCards.map((card, index) => (
+                    <div key={card.id} className="border border-gray-200 rounded-lg p-4 bg-gray-50 relative">
+                      <div className="absolute top-2 right-2 text-gray-400 text-xs font-medium">Carte {index + 1}</div>
+                      {draft.ad.carouselCards.length > 1 && (
+                        <button onClick={() => removeCarouselCard(index)} className="absolute bottom-4 right-4 text-red-500 hover:bg-red-50 p-1.5 rounded"><Trash size={16}/></button>
+                      )}
+
+                      <div className="flex gap-4 items-start">
+                        <label className="w-24 h-24 bg-white border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-blue-400 transition-colors shrink-0 overflow-hidden group">
+                          <input type="file" accept="image/*" className="hidden" onChange={(e) => handleCarouselImageUpload(e, index)} />
+                          {card.image ? (
+                            <img src={card.image} className="w-full h-full object-cover" />
+                          ) : (
+                            <>
+                              <Plus size={20} className="text-gray-400 group-hover:text-blue-500 mb-1" />
+                              <span className="text-[10px] text-gray-500 font-medium">Image (1:1)</span>
+                            </>
+                          )}
+                        </label>
+
+                        <div className="flex-1 space-y-3">
+                          <div>
+                            <label className="block text-[11px] font-medium text-gray-600 mb-1">Titre de la carte</label>
+                            <input type="text" value={card.headline} onChange={(e) => updateCarouselCard(index, 'headline', e.target.value)} placeholder="Un titre court" className="w-full px-2 py-1.5 text-sm border rounded focus:ring-1 focus:ring-blue-500 outline-none" />
+                          </div>
+                          <div>
+                            <label className="block text-[11px] font-medium text-gray-600 mb-1">URL (lien spécifique à cette carte)</label>
+                            <input type="url" value={card.url} onChange={(e) => updateCarouselCard(index, 'url', e.target.value)} placeholder="https://..." className="w-full px-2 py-1.5 text-sm border rounded focus:ring-1 focus:ring-blue-500 outline-none" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <button onClick={addCarouselCard} className="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-sm font-medium text-gray-600 hover:text-blue-600 hover:border-blue-400 hover:bg-blue-50 transition-colors flex items-center justify-center gap-2">
+                  <Plus size={16} /> Ajouter une carte au carrousel
+                </button>
+              </div>
+
+              <label className="block text-sm font-medium mt-6 mb-2">Texte principal (S'affiche au-dessus du carrousel)</label>
+              <textarea value={draft.ad.primaryText} onChange={(e) => updateDraft('ad', 'primaryText', e.target.value)} className="w-full px-3 py-2 border rounded-md mb-4 focus:ring-2 focus:ring-blue-500 outline-none" rows="3" />
+            </>
+          ) : (
+            <div className="p-8 text-center bg-gray-50 border rounded-lg">
+              <Layout size={32} className="mx-auto text-gray-400 mb-3" />
+              <p className="text-sm text-gray-600">L'interface de l'Instant Experience (Collection) s'ouvrirait ici dans un constructeur plein écran complexe.</p>
+            </div>
+          )}
+
+          {draft.ad.adSetup !== 'EXISTING' && (
+            <>
+              <label className="block text-sm font-medium mb-2 mt-4">Appel à l'action (Bouton)</label>
+              <select value={draft.ad.callToAction} onChange={(e) => updateDraft('ad', 'callToAction', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                 <option value="LEARN_MORE">En savoir plus</option>
+                 <option value="SHOP_NOW">Acheter</option>
+                 <option value="SIGN_UP">S'inscrire</option>
+                 <option value="CONTACT_US">Nous contacter</option>
+                 <option value="APPLY_NOW">Postuler maintenant</option>
+                 <option value="BOOK_NOW">Réserver</option>
+                 <option value="DOWNLOAD">Télécharger</option>
+                 <option value="GET_OFFER">Obtenir l'offre</option>
+                 <option value="SUBSCRIBE">S'abonner</option>
+                 <option value="WATCH_MORE">Voir plus</option>
+                 <option value="LISTEN_NOW">Écouter maintenant</option>
+                 <option value="NO_BUTTON">Aucun bouton</option>
+              </select>
+            </>
+          )}
+        </div>
+
+        {/* BLOC DESTINATION */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <h2 className="text-lg font-semibold mb-4 text-gray-900">Destination & Suivi</h2>
+          {draft.ad.format !== 'CAROUSEL' && (
+            <>
+              <label className="block text-sm font-medium text-gray-700 mb-1">URL du site web principale</label>
+              <input type="url" value={draft.ad.url} onChange={(e) => updateDraft('ad', 'url', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md mb-4 focus:ring-2 focus:ring-blue-500 outline-none" />
+            </>
+          )}
+
+          <label className="block text-sm font-medium text-gray-700 mb-1">Paramètres d'URL (UTM)</label>
+          <input type="text" value={draft.ad.urlParameters} onChange={(e) => updateDraft('ad', 'urlParameters', e.target.value)} placeholder="utm_source=facebook&utm_medium=ad" className="w-full px-3 py-2 border border-gray-300 rounded-md font-mono text-sm bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none" />
+
+          <label className={`flex items-start gap-4 p-4 border rounded-xl cursor-pointer mt-6 transition-colors ${draft.ad.pixelActive ? 'border-blue-500 bg-blue-50/40' : 'border-gray-200 hover:border-gray-300'}`}>
+            <input type="checkbox" checked={draft.ad.pixelActive} onChange={(e) => updateDraft('ad', 'pixelActive', e.target.checked)} className="mt-1 w-5 h-5 text-blue-600 rounded focus:ring-blue-500 cursor-pointer" />
+            <div className="flex flex-col">
+              <span className="font-semibold text-gray-900 text-[15px]">Évènements sur le site web (Pixel)</span>
+              <span className="text-sm text-gray-500 mt-0.5">Pixel de l'EFP (ID: 12345678910)</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      {/* Colonne de droite : Aperçu */}
+      <div className="w-full lg:w-[360px] bg-white rounded-lg shadow-sm border border-gray-200 sticky top-0 overflow-hidden shrink-0 hidden md:flex flex-col h-[700px]">
+        <div className="p-3 border-b flex flex-col gap-3 bg-white z-10">
+          <div className="flex gap-1 bg-gray-100 p-1 rounded">
+              {['feeds', 'stories'].map(fmt => (
+                <button key={fmt} onClick={() => setPreviewFormat(fmt)} className={`flex-1 py-1.5 text-xs font-semibold rounded ${previewFormat === fmt ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500'}`}>{fmt === 'feeds' ? 'Fils' : 'Stories'}</button>
+              ))}
+          </div>
+          <div className="flex justify-between items-center bg-blue-50 px-3 py-2 rounded-md border border-blue-100">
+            <span className="text-xs font-semibold text-blue-900 flex items-center gap-2"><AlertCircle size={14}/> Safe Zones</span>
+            <input type="checkbox" checked={showSafeZones} onChange={() => setShowSafeZones(!showSafeZones)} className="cursor-pointer" />
+          </div>
+        </div>
+
+        <div className="flex-1 bg-gray-200 flex items-center justify-center p-4 overflow-y-auto relative">
+
+          {/* APERÇU : IMAGE UNIQUE FEEDS */}
+          {previewFormat === 'feeds' && draft.ad.format === 'SINGLE_IMAGE' && (
+            <div className="bg-white w-[300px] rounded-lg shadow-sm overflow-hidden text-sm shrink-0">
+               <div className="p-3 font-semibold flex items-center gap-2"><div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center">{(draft.ad.facebookPage || 'L')[0].toUpperCase()}</div>{draft.ad.facebookPage}</div>
+               <div className="px-3 pb-3 whitespace-pre-wrap">{draft.ad.primaryText || 'Texte principal...'}</div>
+               <div className="relative w-full aspect-square bg-gray-100 border-y flex items-center justify-center overflow-hidden">
+                 {draft.ad.media.feeds ? <img src={draft.ad.media.feeds} className="w-full h-full object-cover" /> : <ImageIcon className="text-gray-300" size={40} />}
+                 {showSafeZones && <div className="absolute inset-0 border-4 border-green-500 m-4 flex items-center justify-center bg-black/20 text-white font-bold pointer-events-none">1:1 SAFE</div>}
+               </div>
+               <div className="bg-gray-50 px-3 py-2 flex justify-between items-center border-b">
+                  <div className="truncate pr-3">
+                     <div className="text-[11px] text-gray-500 uppercase truncate">{getDisplayUrl(draft.ad.url)}</div>
+                     <div className="font-semibold text-sm text-gray-900 truncate mt-0.5">{draft.ad.headline || 'Titre'}</div>
+                  </div>
+                  {draft.ad.callToAction !== 'NO_BUTTON' && <button className="px-3 py-1.5 bg-gray-200 text-gray-900 font-semibold text-xs rounded whitespace-nowrap">{getCTALabel(draft.ad.callToAction)}</button>}
+               </div>
+            </div>
+          )}
+
+          {/* APERÇU : CARROUSEL FEEDS */}
+          {previewFormat === 'feeds' && draft.ad.format === 'CAROUSEL' && (
+            <div className="bg-white w-[320px] rounded-lg shadow-sm overflow-hidden text-sm shrink-0">
+               <div className="p-3 font-semibold flex items-center gap-2"><div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center">{(draft.ad.facebookPage || 'L')[0].toUpperCase()}</div>{draft.ad.facebookPage}</div>
+               <div className="px-3 pb-2 whitespace-pre-wrap text-sm">{draft.ad.primaryText || 'Texte principal...'}</div>
+
+               <div className="flex overflow-x-auto gap-2 p-3 pb-4 snap-x hide-scrollbar">
+                 {draft.ad.carouselCards.map((card, i) => (
+                   <div key={card.id} className="w-[220px] shrink-0 border border-gray-200 rounded-lg overflow-hidden snap-center shadow-sm">
+                     <div className="w-full aspect-square bg-gray-100 flex items-center justify-center">
+                       {card.image ? <img src={card.image} className="w-full h-full object-cover" /> : <ImageIcon className="text-gray-300" size={32} />}
+                     </div>
+                     <div className="p-2.5 bg-white border-t border-gray-100 flex flex-col justify-between min-h-[60px]">
+                       <div className="font-semibold text-gray-900 truncate text-[13px]">{card.headline || `Titre carte ${i+1}`}</div>
+                       <div className="text-[11px] text-gray-500 uppercase truncate mb-1">{getDisplayUrl(card.url)}</div>
+                       {draft.ad.callToAction !== 'NO_BUTTON' && <button className="mt-2 w-full py-1.5 bg-gray-100 text-gray-800 font-semibold text-xs rounded border border-gray-200">{getCTALabel(draft.ad.callToAction)}</button>}
+                     </div>
+                   </div>
+                 ))}
+               </div>
+            </div>
+          )}
+
+          {/* APERÇU : STORIES */}
+          {previewFormat === 'stories' && (
+            <div className="bg-gray-900 w-[270px] h-[480px] rounded-xl relative overflow-hidden text-white border border-gray-700 shrink-0">
+               {draft.ad.format === 'CAROUSEL' ? (
+                 (draft.ad.carouselCards[0]?.image) ? <img src={draft.ad.carouselCards[0].image} className="absolute inset-0 w-full h-full object-cover opacity-90" /> : <Sidebar className="absolute inset-0 m-auto opacity-50" size={40}/>
+               ) : (
+                 (draft.ad.media.stories || draft.ad.media.feeds) ? <img src={draft.ad.media.stories || draft.ad.media.feeds} className="absolute inset-0 w-full h-full object-cover opacity-90" /> : <Smartphone className="absolute inset-0 m-auto opacity-50" size={40}/>
+               )}
+
+               {showSafeZones && (
+                 <div className="absolute inset-0 z-30 pointer-events-none">
+                   <div className="absolute top-0 inset-x-0 h-[14%] bg-red-500/40 border-b-2 border-dashed flex items-center justify-center text-xs font-bold bg-red-900/50">UI Cachée</div>
+                   <div className="absolute bottom-0 inset-x-0 h-[22%] bg-red-500/40 border-t-2 border-dashed flex items-center justify-center text-xs font-bold bg-red-900/50">Texte Caché</div>
+                   <div className="absolute top-[14%] bottom-[22%] inset-x-4 border-4 border-green-500/60 flex items-center justify-center text-green-400 font-bold text-xl rotate-[-15deg]">SAFE</div>
+                 </div>
+               )}
+               <div className={`absolute top-0 inset-x-0 p-4 bg-gradient-to-b from-black/60 to-transparent flex items-center gap-2 ${showSafeZones ? 'opacity-30' : ''}`}>
+                 <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center font-bold text-xs border border-white/20 shrink-0">{(draft.ad.facebookPage || 'L')[0].toUpperCase()}</div>
+                 <div className="flex-1 overflow-hidden">
+                   <div className="text-xs font-semibold truncate text-shadow-sm">{draft.ad.facebookPage || 'Les Licornes du Marketing 🦄'}</div>
+                   <div className="text-[10px] opacity-80">Sponsorisé</div>
+                 </div>
+               </div>
+               <div className={`absolute bottom-0 p-4 w-full bg-gradient-to-t from-black to-transparent ${showSafeZones ? 'opacity-30' : ''}`}>
+                 <div className="text-xs mb-2 line-clamp-3">{draft.ad.primaryText || 'Texte...'}</div>
+                 {draft.ad.callToAction !== 'NO_BUTTON' && <button className="w-full py-2 bg-blue-600 rounded-full text-sm font-semibold flex items-center justify-center gap-2 shadow-sm">{getCTALabel(draft.ad.callToAction)} <ChevronRight size={16} /></button>}
+               </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MetaNavItem({ icon, active, onClick, title }) {
+  return (
+    <div onClick={onClick} className={`p-3 mx-2 rounded-lg cursor-pointer flex items-center justify-center ${active ? 'bg-blue-50 text-blue-600' : 'text-gray-500 hover:bg-gray-100'}`} title={title}>
+      {icon}
+    </div>
+  );
+}
+
+// ==========================================
+// SIMULATEUR GOOGLE ANALYTICS 4
+// ==========================================
+function GA4Simulator({ onExit }) {
+  const [activeMenu, setActiveMenu] = useState('acq-traffic'); 
+  const [expandedMenus, setExpandedMenus] = useState({ acquisition: true, engagement: true });
+  const [primaryDimension, setPrimaryDimension] = useState('sourceMedium');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [homeKeyEvent, setHomeKeyEvent] = useState('Purchase');
+
+  const toggleMenu = (menu) => setExpandedMenus(prev => ({ ...prev, [menu]: !prev[menu] }));
+
+  const trafficData = [
+    { id: 1, channel: 'Organic Search', medium: 'organic', source: 'google', sourceMedium: 'google / organic', campaign: '(organic)', users: 4520, sessions: 5100, engagedSessions: 3468, engagementRate: 68, conversions: 45, revenue: 2150 },
+    { id: 2, channel: 'Direct', medium: '(none)', source: '(direct)', sourceMedium: '(direct) / (none)', campaign: '(direct)', users: 2100, sessions: 2300, engagedSessions: 1035, engagementRate: 45, conversions: 12, revenue: 540 },
+    { id: 3, channel: 'Paid Social', medium: 'ad', source: 'facebook', sourceMedium: 'facebook / ad', campaign: 'lancement', users: 1250, sessions: 1450, engagedSessions: 754, engagementRate: 52, conversions: 2, revenue: 45 },
+    { id: 4, channel: 'Paid Social', medium: 'ad', source: 'facebook', sourceMedium: 'facebook / ad', campaign: 'retargeting', users: 320, sessions: 480, engagedSessions: 360, engagementRate: 75, conversions: 15, revenue: 850 },
+    { id: 5, channel: 'Email', medium: 'email', source: 'newsletter', sourceMedium: 'newsletter / email', campaign: 'promo_printemps', users: 850, sessions: 920, engagedSessions: 561, engagementRate: 61, conversions: 28, revenue: 1420 },
+    { id: 6, channel: 'Paid Search', medium: 'cpc', source: 'google', sourceMedium: 'google / cpc', campaign: 'mots_cles_marque', users: 640, sessions: 710, engagedSessions: 511, engagementRate: 72, conversions: 35, revenue: 1850 },
+  ];
+
+  const filteredTrafficData = trafficData.filter(row => row[primaryDimension].toLowerCase().includes(searchQuery.toLowerCase()));
+
+  const aggregatedTrafficData = Array.from(filteredTrafficData.reduce((acc, row) => {
+    const key = row[primaryDimension];
+    if (!acc.has(key)) acc.set(key, { id: key, [primaryDimension]: key, users: 0, sessions: 0, engagedSessions: 0, conversions: 0, revenue: 0, isMetaRow: false });
+    const group = acc.get(key);
+    group.users += row.users; group.sessions += row.sessions; group.engagedSessions += row.engagedSessions; group.conversions += row.conversions; group.revenue += row.revenue; group.isMetaRow = group.isMetaRow || row.sourceMedium === 'facebook / ad'; group.engagementRate = Math.round((group.engagedSessions / group.sessions) * 100);
+    return acc;
+  }, new Map()).values());
+
+  const pagesData = [
+    { id: 1, path: '/', title: 'Accueil | Boutique Marketing', views: 15420, users: 9680, viewsPerUser: 1.59, avgTime: '00:54', eventCount: 45200, conversions: 5, revenue: 0 },
+    { id: 2, path: '/nos-formations', title: 'Toutes les formations', views: 8250, users: 4120, viewsPerUser: 2.00, avgTime: '01:25', eventCount: 22100, conversions: 12, revenue: 0 },
+    { id: 3, path: '/formation-meta-ads', title: 'Formation Master Meta Ads', views: 4100, users: 1850, viewsPerUser: 2.21, avgTime: '02:45', eventCount: 15400, conversions: 8, revenue: 0 },
+    { id: 4, path: '/panier', title: 'Votre panier', views: 1250, users: 850, viewsPerUser: 1.47, avgTime: '01:10', eventCount: 4200, conversions: 2, revenue: 0 },
+    { id: 5, path: '/checkout', title: 'Paiement sécurisé', views: 850, users: 620, viewsPerUser: 1.37, avgTime: '02:15', eventCount: 3100, conversions: 0, revenue: 0 },
+    { id: 6, path: '/confirmation', title: 'Merci pour votre commande', views: 137, users: 135, viewsPerUser: 1.01, avgTime: '00:30', eventCount: 540, conversions: 137, revenue: 6850 },
+  ];
+
+  const homeStats = { users: "12 k", sessions: "15,2 k", avgTime: "1 m 24 s", events: { 'Purchase': "137", 'Lead': "452", 'Add to cart': "850" } };
+
+  return (
+    <div className="flex h-screen bg-white font-sans text-gray-800 overflow-hidden w-full">
+      <div className="w-16 bg-gray-50 border-r flex flex-col items-center shrink-0 z-20">
+        <div className="h-16 flex items-center justify-center border-b w-full">
+           <button onClick={onExit} className="w-8 h-8 bg-gray-200 hover:bg-gray-300 rounded flex items-center justify-center shrink-0 transition-colors" title="Retour au portail"><ArrowLeft size={16} /></button>
+        </div>
+        <nav className="flex flex-col w-full mt-4">
+          <GA4NavItem icon={<Home size={20} />} isActive={activeMenu === 'home'} onClick={() => setActiveMenu('home')} />
+          <GA4NavItem icon={<BarChart2 size={20} />} isActive={activeMenu.startsWith('acq') || activeMenu.startsWith('eng')} onClick={() => setActiveMenu('acq-overview')} />
+        </nav>
+      </div>
+
+      {activeMenu !== 'home' && (
+        <div className="w-64 bg-white border-r flex flex-col shrink-0 hidden md:flex">
+          <div className="p-4 border-b"><h2 className="font-medium text-gray-800">Rapports</h2></div>
+          <div className="p-2 space-y-1 overflow-y-auto">
+            <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase">Cycle de vie</div>
+            <div>
+              <button onClick={() => toggleMenu('acquisition')} className="w-full flex justify-between items-center px-3 py-2 text-sm rounded-md hover:bg-gray-100 font-medium">
+                Acquisition <ChevronDown size={16} className={`transition-transform ${expandedMenus.acquisition ? '' : '-rotate-90'}`}/>
+              </button>
+              {expandedMenus.acquisition && (
+                <div className="ml-4 pl-2 border-l space-y-1 mt-1">
+                  <button onClick={() => setActiveMenu('acq-overview')} className={`w-full text-left px-3 py-1.5 text-sm rounded-md ${activeMenu === 'acq-overview' ? 'text-blue-700 bg-blue-50 font-medium border-l-2 border-blue-600 -ml-[1px]' : 'text-gray-600 hover:bg-gray-100'}`}>Vue d'ensemble</button>
+                  <button onClick={() => setActiveMenu('acq-traffic')} className={`w-full text-left px-3 py-1.5 text-sm rounded-md ${activeMenu === 'acq-traffic' ? 'text-blue-700 bg-blue-50 font-medium border-l-2 border-blue-600 -ml-[1px]' : 'text-gray-600 hover:bg-gray-100'}`}>Acquisition de trafic</button>
+                </div>
+              )}
+            </div>
+            <div className="mt-2">
+              <button onClick={() => toggleMenu('engagement')} className="w-full flex justify-between items-center px-3 py-2 text-sm rounded-md hover:bg-gray-100 font-medium">
+                Engagement <ChevronDown size={16} className={`transition-transform ${expandedMenus.engagement ? '' : '-rotate-90'}`}/>
+              </button>
+              {expandedMenus.engagement && (
+                <div className="ml-4 pl-2 border-l space-y-1 mt-1">
+                  <button className="w-full text-left px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-md">Vue d'ensemble</button>
+                  <button onClick={() => setActiveMenu('eng-pages')} className={`w-full text-left px-3 py-1.5 text-sm rounded-md ${activeMenu === 'eng-pages' ? 'text-blue-700 bg-blue-50 font-medium border-l-2 border-blue-600 -ml-[1px]' : 'text-gray-600 hover:bg-gray-100'}`}>Pages et écrans</button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
+        <header className="h-16 bg-white border-b flex items-center justify-between px-6 shrink-0 shadow-sm z-10">
+          <span className="font-medium text-gray-800 flex items-center gap-2">Boutique de l'école (GA4)</span>
+          <div className="flex items-center gap-3">
+            <button className="flex items-center gap-2 px-3 py-1.5 border border-gray-300 rounded-md text-sm text-gray-600 bg-white shadow-sm">
+              <Calendar size={14} /> 1 mars - 31 mars
+            </button>
+          </div>
+        </header>
+
+        <main className="flex-1 overflow-y-auto p-6 relative">
+          {activeMenu === 'home' && (
+            <div className="max-w-5xl mx-auto">
+              <h1 className="text-2xl font-normal mb-6">Vue d'ensemble de l'accueil</h1>
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 divide-y md:divide-y-0 md:divide-x divide-gray-100">
+                  <div className="px-4"><div className="text-sm font-medium text-gray-500 mb-2">Utilisateurs</div><div className="text-3xl font-normal text-gray-900">{homeStats.users}</div></div>
+                  <div className="px-4"><div className="text-sm font-medium text-gray-500 mb-2">Sessions</div><div className="text-3xl font-normal text-gray-900">{homeStats.sessions}</div></div>
+                  <div className="px-4">
+                    <div className="text-sm font-medium text-gray-500 mb-2 group relative">
+                       <select value={homeKeyEvent} onChange={(e) => setHomeKeyEvent(e.target.value)} className="appearance-none bg-transparent border-b border-dashed border-blue-400 text-blue-700 font-medium pb-1 pr-4 cursor-pointer focus:outline-none">
+                         <option value="Purchase">Événements clés : Purchase</option><option value="Lead">Événements clés : Lead</option><option value="Add to cart">Événements clés : Add to cart</option>
+                       </select>
+                       <ChevronDown size={14} className="absolute right-0 top-0 text-blue-700 pointer-events-none"/>
+                    </div>
+                    <div className="text-3xl font-normal text-gray-900">{homeStats.events[homeKeyEvent]}</div>
+                  </div>
+                  <div className="px-4"><div className="text-sm font-medium text-gray-500 mb-2">Durée d'eng. moy.</div><div className="text-3xl font-normal text-gray-900">{homeStats.avgTime}</div></div>
+                </div>
+
+                <div className="mt-8 h-48 w-full flex items-end justify-between px-2 gap-1 opacity-80 border-b border-gray-200">
+                  {[3,5,4,7,6,8,5,9,11,10,14,12,16,15,18,17,20,19,25,22,28,26,30].map((h, i) => (
+                     <div key={i} className="w-full bg-blue-500 rounded-t-sm hover:bg-blue-600 transition-colors cursor-pointer" style={{height: `${h*3}%`}}></div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeMenu === 'acq-traffic' && (
+            <div className="max-w-[1400px] mx-auto">
+              <h1 className="text-2xl font-normal mb-6">Acquisition de trafic</h1>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+                <div className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm h-64 flex flex-col">
+                  <h3 className="text-sm font-medium text-gray-700 mb-4">Utilisateurs par {primaryDimension} au fil du temps</h3>
+                  <div className="flex-1 flex items-end justify-between px-2 gap-1 relative">
+                    <div className="absolute inset-0 flex flex-col justify-between pointer-events-none pb-6">
+                      <div className="border-b border-gray-100 h-1/4"></div><div className="border-b border-gray-100 h-1/4"></div><div className="border-b border-gray-100 h-1/4"></div><div className="border-b border-gray-200 h-1/4"></div>
+                    </div>
+                    {[40, 60, 45, 80, 50, 90, 70, 85, 60, 100, 110, 95, 120, 105, 130].map((h, i) => (
+                      <div key={i} className="w-full bg-blue-500/80 rounded-t-sm z-10 hover:bg-blue-600 transition-colors cursor-pointer" style={{ height: `${h * 0.7}%` }}></div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm h-64 flex flex-col">
+                  <h3 className="text-sm font-medium text-gray-700 mb-4">Utilisateurs par {primaryDimension}</h3>
+                  <div className="flex-1 flex flex-col justify-center gap-4">
+                    {aggregatedTrafficData.slice(0, 4).map((row, idx) => {
+                      const colors = ['bg-blue-500', 'bg-indigo-400', 'bg-teal-400', 'bg-purple-400'];
+                      const maxUsers = Math.max(...aggregatedTrafficData.map(r => r.users));
+                      const width = `${(row.users / maxUsers) * 100}%`;
+                      return (
+                        <div key={idx} className="flex items-center gap-3">
+                          <div className="w-40 text-xs truncate text-gray-700">{row[primaryDimension]}</div>
+                          <div className="flex-1 h-4 bg-gray-100 rounded-full overflow-hidden">
+                            <div className={`h-full ${colors[idx % colors.length]} rounded-full`} style={{ width }}></div>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden flex flex-col">
+                <div className="p-4 border-b border-gray-200 bg-white flex justify-between items-center flex-wrap gap-4">
+                  <div className="relative">
+                    <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input type="text" placeholder="Rechercher..." onChange={e => setSearchQuery(e.target.value)} className="pl-9 pr-4 py-1.5 border border-gray-300 rounded-md text-sm w-64 outline-none focus:ring-1 focus:ring-blue-500" />
+                  </div>
+
+                  <div className="flex items-center gap-2 bg-blue-50 border border-blue-200 p-2 rounded-lg shadow-sm">
+                    <span className="text-xs font-semibold text-blue-800">🎯 Dimension (UTM) :</span>
+                    <select value={primaryDimension} onChange={(e) => setPrimaryDimension(e.target.value)} className="px-3 py-1.5 border border-blue-300 rounded text-sm bg-white font-medium text-blue-900 outline-none cursor-pointer">
+                      <option value="channel">Groupe de canaux par défaut</option>
+                      <option value="source">Source (utm_source)</option>
+                      <option value="medium">Support (utm_medium)</option>
+                      <option value="sourceMedium">Source / Support</option>
+                      <option value="campaign">Campagne (utm_campaign)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm text-left whitespace-nowrap">
+                    <thead className="bg-gray-50 text-xs uppercase border-b text-gray-500">
+                      <tr>
+                        <th className="p-4 font-semibold sticky left-0 bg-gray-50 shadow-[1px_0_0_0_#e5e7eb] z-10 w-64">Dimension sélectionnée</th>
+                        <th className="p-4 text-right">Utilisateurs</th>
+                        <th className="p-4 text-right">Sessions</th>
+                        <th className="p-4 text-right">Sessions engagées</th>
+                        <th className="p-4 text-right">Taux d'engagement</th>
+                        <th className="p-4 text-right">Événements clés</th>
+                        <th className="p-4 text-right">Revenus totaux</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {aggregatedTrafficData.map(row => {
+                        const isMetaRow = row.isMetaRow;
+                        return (
+                          <tr key={row.id} className={`hover:bg-gray-50 transition-colors ${isMetaRow ? 'bg-blue-50/20' : ''}`}>
+                            <td className={`p-4 sticky left-0 shadow-[1px_0_0_0_#e5e7eb] flex items-center gap-2 ${isMetaRow ? 'bg-blue-50/80 font-bold text-blue-800' : 'bg-white text-gray-800'}`}>
+                              {row[primaryDimension]}
+                              {isMetaRow && primaryDimension !== 'channel' && <span className="ml-auto px-1.5 py-0.5 bg-blue-600 text-white text-[10px] rounded uppercase tracking-wider">Meta Ads</span>}
+                              {isMetaRow && primaryDimension === 'channel' && <span className="ml-auto px-1.5 py-0.5 bg-blue-600 text-white text-[10px] rounded uppercase tracking-wider" title="Se décompose dans les autres dimensions">Inclut Meta</span>}
+                            </td>
+                            <td className="p-4 text-right text-gray-700">{row.users.toLocaleString('fr-FR')}</td>
+                            <td className="p-4 text-right text-gray-700">{row.sessions.toLocaleString('fr-FR')}</td>
+                            <td className="p-4 text-right text-gray-700">{row.engagedSessions.toLocaleString('fr-FR')}</td>
+                            <td className="p-4 text-right">
+                              <span className={`px-2 py-1 rounded text-xs font-medium ${row.engagementRate > 60 ? 'bg-green-100 text-green-800' : row.engagementRate < 50 ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'}`}>
+                                {row.engagementRate}%
+                              </span>
+                            </td>
+                            <td className="p-4 text-right text-blue-600 font-medium cursor-pointer hover:underline">{row.conversions}</td>
+                            <td className="p-4 text-right font-medium text-gray-900">{row.revenue} €</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeMenu === 'eng-pages' && (
+            <div className="max-w-[1400px] mx-auto">
+              <h1 className="text-2xl font-normal mb-6">Pages et écrans</h1>
+              <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden flex flex-col">
+                <div className="p-4 border-b border-gray-200 bg-white">
+                  <div className="relative">
+                    <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input type="text" placeholder="Rechercher une page (ex: /panier)..." className="pl-9 pr-4 py-1.5 border border-gray-300 rounded-md text-sm w-72 outline-none focus:ring-1 focus:ring-blue-500" />
+                  </div>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm text-left whitespace-nowrap">
+                    <thead className="bg-gray-50 text-xs uppercase border-b text-gray-500">
+                      <tr>
+                        <th className="p-4 font-semibold sticky left-0 bg-gray-50 shadow-[1px_0_0_0_#e5e7eb] z-10 w-80">Chemin de la page et classe de l'écran</th>
+                        <th className="p-4 text-right">Vues</th>
+                        <th className="p-4 text-right">Utilisateurs</th>
+                        <th className="p-4 text-right">Vues par utilisateur</th>
+                        <th className="p-4 text-right">Durée d'engagement moy.</th>
+                        <th className="p-4 text-right">Nombre d'événements</th>
+                        <th className="p-4 text-right">Événements clés (Conversions)</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {pagesData.map(row => (
+                        <tr key={row.id} className="hover:bg-gray-50 transition-colors">
+                          <td className="p-4 sticky left-0 shadow-[1px_0_0_0_#e5e7eb] bg-white">
+                            <div className="font-medium text-blue-700 truncate w-72 cursor-pointer hover:underline" title={row.path}>{row.path}</div>
+                            <div className="text-xs text-gray-500 mt-0.5 truncate w-72" title={row.title}>{row.title}</div>
+                          </td>
+                          <td className="p-4 text-right text-gray-700">{row.views.toLocaleString('fr-FR')}</td>
+                          <td className="p-4 text-right text-gray-700">{row.users.toLocaleString('fr-FR')}</td>
+                          <td className="p-4 text-right text-gray-700">{row.viewsPerUser.toLocaleString('fr-FR')}</td>
+                          <td className="p-4 text-right text-gray-700">{row.avgTime}</td>
+                          <td className="p-4 text-right text-gray-700">{row.eventCount.toLocaleString('fr-FR')}</td>
+                          <td className="p-4 text-right font-medium text-blue-600 cursor-pointer hover:underline">{row.conversions}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+        </main>
+      </div>
+    </div>
+  );
+}
+
+function GA4NavItem({ icon, isActive, onClick }) {
+  return (
+    <div onClick={onClick} className={`p-3 w-12 mx-auto rounded-xl cursor-pointer flex items-center justify-center transition-colors mb-2 ${isActive ? 'bg-blue-50 text-blue-600' : 'text-gray-500 hover:bg-gray-100'}`}>
+      {icon}
+    </div>
+  );
+}
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
   </script>
 </body>
 </html>
